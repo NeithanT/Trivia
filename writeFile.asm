@@ -10,10 +10,8 @@
 
 .DATA
 
-    file_name   db "intro.txt", 0
-    
-.UDATA
-    buffer  resb 1000
+    file_name   db "example.txt", 0
+    buffer      db "Hello, testing to write"
 
 .CODE
 
@@ -26,26 +24,24 @@
 
         mov EAX, 5      ; open mode
         mov EBX, file_name
-        mov ECX, 0 ; no idea
+        mov ECX, 1 ; write only mode
         mov EDX, 0 ; no idea
         int 0x80
-        
+
         ;
         ;
         ;
         ;
 
         mov EBX, EAX ; move the file descriptor
-        mov EAX, 3  ; read mode
+        mov EAX, 4  ; write mode
         mov ECX, buffer
-        mov EDX, 1000
+        mov EDX, 23
         int 0x80
-
-        PutStr buffer
-        nwln
 
         mov EAX, 6  ; close file !
         int 0x80
+
     
     done:
         nwln    ; Imprime un salto de linea antes de finalizar
