@@ -1,0 +1,63 @@
+Opcion correcta: c
+1. Que dia de la semana es el Sub de pizza en el restaurante Subway?
+a) Miercoles
+b) Jueves
+c) Lunes
+d) Sábado
+
+Opcion correcta: d
+2. Que vale más en el comedor del TEC?
+a) ensalada
+b) arroz
+c) pinto
+d) queso
+
+Opcion correcta: d
+3. La curva C está dada por y^2 = 3xy +  5, la cual define a y como funcion implicita derivable de x.
+Calcule la pendiente de la recta normal a C en el punto (2, -1)
+a) 3/8
+b) -3/8
+c) 8/3
+d) -8/3
+
+Opcion correcta: c
+4. Cual mob de Minecraft fue un error que termino siendo agregado al juego?
+a) caballo zombie
+b) esqueleto wither
+c) creeper
+d) ocelote
+
+Opcion correcta: a
+5. En que fecha nacio Hitler?
+a) Abril 20, 1889
+b) Enero 14, 1893
+c) Junio 30, 1901
+d) Octubre 3, 1875
+
+Opcion correcta: b
+6. En que temporada se introdujo la skin del bananin a Fortnite?
+a) Temporada 2, Capítulo 2
+b) Temporada 8, Capítulo 1
+c) Temporada 3, Capítulo 4
+d) Temporada 5, Capítulo 3
+
+Opcion correcta: b
+7. Cuales son los primeros 50 digitos de pi?
+a) 3.1415965334393434238462643383279736884191693993753
+b) 3.1415926535897932384626433832795028841971693993751
+c) 3.1415923435347930579984923832795028841971693903752
+d) 3.1415374346617932384626437328738720810941693993751
+
+Opcion correcta: c
+8. En el anime Steins;Gate cómo se llaman los mensajes que se envian al pasado?
+a) Time-Space Continuum Message
+b) Future Gadget Mail
+c) D-mail
+d) Future Mail
+
+Opcion correcta: b
+9. Las siguientes coordenadas (64.5200, 175.5093) se ubican en el pais
+a) Turquia
+b) Rusia
+c) Micronesia
+d) Turkmenistan

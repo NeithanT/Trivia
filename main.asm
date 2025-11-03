@@ -10,18 +10,58 @@
 %include "io.mac" ; Incluir macros para entrada y salida de datos
 
 .DATA
+    option_play         db 9, "1 - Jugar Partida", 0
+    option_change       db 9, "2 - Agregar Pregunta", 0
+    option_questions    db 9, "3 - Ver Preguntas", 0
+    option_exit         db 9, "4 - Salir", 0
+    option_ask          db 9, "Escoge una opcion: ", 0
+    option_not_valid    db 9, "Opcion Invalida", 0
+
     intro   db "hello", 0
     tab     db 9
+
+.UDATA
+    answer  resw 1
+
 .CODE
 
+    extern show_menu
+
     .STARTUP
+        call show_menu
 
     show_intro:
+        PutStr option_play
+        nwln
+        PutStr option_change
+        nwln
+        PutStr option_questions
+        nwln
+        PutStr option_exit
+        nwln
+        jmp ask_option
 
     not_valid:
 
     ask_option:
+        PutStr option_ask
+        GetInt DX
+        cmp WORD DX, 1
+        je play_game
+        cmp WORD DX, 2
+        je add_question
+        cmp WORD DX, 3
+        je see_questions
+        cmp WORD DX, 4
+        je done
+        jmp not_valid
 
+    play_game:
+    ; not equal correcta, siguiente
+    add_question:
+
+    see_questions:
+    
     done:
         nwln
         .EXIT
