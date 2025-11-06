@@ -42,22 +42,24 @@
         jmp ask_option
 
     not_valid:
+        PutStr option_not_valid
+        nwln
 
     ask_option:
         PutStr option_ask
-        GetInt DX
-        cmp WORD DX, 1
+        GetCh DL
+        cmp DL, '1'
         je play_game
-        cmp WORD DX, 2
+        cmp DL, '2'
         je add_question
-        cmp WORD DX, 3
+        cmp DL, '3'
         je see_questions
-        cmp WORD DX, 4
+        cmp DL, '4'
         je done
         jmp not_valid
 
     play_game:
-    ; not equal correcta, siguiente
+    
     add_question:
 
     see_questions:
