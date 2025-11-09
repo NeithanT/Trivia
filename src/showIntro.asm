@@ -2,28 +2,28 @@
 ;----------Campus Tecnológico Central Cartago---------------
 ;---------Escuela de Ingeniería en Computación--------------
 ;-------Curso IC-3101 Arquitectura de Computadoras----------
-;--------------------Proyecto #01------------------------------
-;---------Neithan Vargas Vargas, Carné: 2025149384----------
-;---2025/11/07 , II Periodo, Profesor: MS.c Esteban Arias---
+;--------------------Proyecto #01---------------------------
+;---------Neithan Vargas Vargas, carne: 2025149384----------
+;---------Fabricio Hernandez, carne: 2025106763-------------
+;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
 
-%include "io.mac" ; Incluir macros para entrada y salida de datos
+%include "io.mac"
 
-
-global show_menu
 
 .DATA
 
-    file_name   db "intro.txt", 0
-    
+    file_name   db "src/saves/intro.txt", 0
+    file_size   dd 1200
 .UDATA
 
-    buffer  resb 1000
+    buffer  resb 1200
 
 .CODE
 
-    show_menu:
+    global show_intro
 
-        pusha
+    show_intro:
+
         ; Syscall to open File, in the linux documentation the entries are:
         ;                   eax     ebx                     ecx         edx
         ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
@@ -43,15 +43,15 @@ global show_menu
         mov EBX, EAX    ; move the file descriptor to EBX
         mov EAX, 3      ; read syscall
         mov ECX, buffer ; pointer to the buffer
-        mov EDX, 1000   ; read everything pretty much
+        mov EDX, [file_size]   ; read everything pretty much
         int 0x80
 
         PutStr buffer   ; print the intro
-        nwln
+
+    done:
 
         mov EAX, 6  ; close file !
         int 0x80
 
-        popa
         ret
     

@@ -1,3 +1,4 @@
+Cantidad de Preguntas:40
 Respuesta correcta:D
 Que vale más en el comedor del TEC?
 A) ensalada
@@ -235,4 +236,46 @@ A) Cartago
 B) Heredia
 C) San Jose
 D) Alajuela
+]
+Respuesta correcta:A
+Cual es el principal producto exportado de Costa Rica?
+A) Cafe
+B) Banano
+C) Azucar
+D) Tabaco
+]
+Respuesta correcta:A
+Cual es el lago mas grande de Costa Rica?
+A) Lago Arenal
+B) Lago Hule
+C) Lago Cote
+D) Lago del Cuarto Rio
+]
+Respuesta correcta:B
+Cual parque nacional es famoso por las tortugas?
+A) Parque Nacional Corcovado
+B) Parque Nacional Tortuguero
+C) Parque Nacional Manuel Antonio
+D) Parque Nacional Chirripo
+]
+Respuesta correcta:B
+Cual es la poblacion aproximada de Costa Rica?
+A) 3 millones
+B) 5 millones
+C) 7 millones
+D) 10 millones
+]
+Respuesta correcta:A
+Cual es el idioma oficial de Costa Rica?
+A) Espanol
+B) Ingles
+C) Frances
+D) Hindi
+]
+Respuesta correcta:B
+Cual es el punto mas alto de Costa Rica?
+A) Volcan Irazu
+B) Cerro Chirripo
+C) Volcan Poas
+D) Volcan Arenal
 ]
