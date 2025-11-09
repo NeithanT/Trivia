@@ -12,9 +12,12 @@
 .DATA
 
     file_name   db "src/saves/seenAnswers.txt", 0
-    buffer      db "Hello, testing to write"
-    null        db  0
+
 .CODE
+
+    global wipe_file
+
+    wipe_file:
         ; syscall to open file
         ;                   eax     ebx                     ecx         edx
         ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
@@ -27,26 +30,4 @@
         mov EDX, 0
         int 0x80
 
-        mov EAX, 5      ; open mode
-        mov EBX, file_name
-
-        ; The writing is complicated. Apparently, write is with 1
-        ; and append has the identifier of 1024, you combine them
-        ; and you use the 1025 ...
-        mov ECX, 1025 ; append mode with write
-        mov EDX, 0
-        int 0x80
-
-        mov EBX, EAX    ; move the file descriptor
-        mov EAX, 4      ; write mode
-        mov ECX, buffer
-        mov EDX, 23
-        int 0x80
-
-        mov EAX, 6  ; close file !
-        int 0x80
-
-    
-    done:
-        nwln    ; Imprime un salto de linea antes de finalizar
-        .EXIT   ; Finaliza el programa
+        ret

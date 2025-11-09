@@ -7,7 +7,7 @@
 ;---------Fabricio Hernandez, carne: 2025106763-------------
 ;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
 
-%include "io.mac" ; Incluir macros para entrada y salida de datos
+%include "io.mac"
 
 .DATA
 
