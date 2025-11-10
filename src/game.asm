@@ -23,12 +23,13 @@
 
 .UDATA
     answer  resb 1
+    names   resb 80
 
 .CODE
 
     extern get_question
     extern wipe_file
-    
+
     global play_game
 
 play_game:

@@ -8,8 +8,8 @@ nasm -f elf32 src/getQuestion.asm -o getQuestion.o
 nasm -f elf32 src/getRand.asm -o getRand.o
 nasm -f elf32 src/wipeFile.asm -o wipeFile.o
 
-ld -s -m elf_i386 main.o showIntro.o game.o addQuestion.o showQuestions.o getQuestion.o readQuestion.o getRand-o wipeFile.o -o main io.o
+ld -s -m elf_i386 main.o showIntro.o game.o addQuestion.o showQuestions.o getQuestion.o readQuestion.o getRand.o wipeFile.o -o main io.o
 
 ./main
 
-rm main.o showIntro.o game.o addQuestion.o showQuestions.o readQuestion.o getQuestion.o getRand.o main
+rm main.o showIntro.o game.o addQuestion.o showQuestions.o getQuestion.o readQuestion.o getRand.o wipeFile.o main

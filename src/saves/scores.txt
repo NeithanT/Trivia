@@ -1,0 +1,40 @@
+{
+    name:simso
+    score:1100
+}
+{
+    name:nei
+    score:900
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
+{
+    name:
+    score:
+}
