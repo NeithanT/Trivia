@@ -9,6 +9,8 @@
 
 %include "io.mac"
 
+; NOT USED
+
 .DATA
 
     file_name   db "intro.txt", 0
