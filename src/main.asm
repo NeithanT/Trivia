@@ -12,7 +12,7 @@
 .DATA
     option_play         db 9, 9, "1 - Jugar Partida", 0
     option_change       db 9, 9, "2 - Agregar Pregunta", 0
-    option_questions    db 9, 9, "3 - Ver Puntajes", 0
+    option_questions    db 9, 9, "3 - Ver Preguntas", 0
     option_exit         db 9, 9, "4 - Salir", 0
     option_ask          db 9, 9, "Escoge una opcion: ", 0
     option_not_valid    db 9, 9, "Opcion Invalida", 0
@@ -29,7 +29,7 @@
     extern show_intro
     extern play_game
     extern add_question
-    extern show_scores
+    extern show_quest
 
     .STARTUP
         call show_intro
@@ -58,7 +58,7 @@
         cmp DL, '2'
         je add_questions
         cmp DL, '3'
-        je see_score
+        je see_questions
         cmp DL, '4'
         je done
         jmp not_valid
@@ -89,8 +89,8 @@
         call add_question
         jmp show_menu
 
-    see_score:
-        call show_scores
+    see_questions:
+        call show_quest
         jmp show_menu
     
     done:

@@ -21,12 +21,16 @@
 
 .CODE
 
-    global readQuestion
+    global read_question
 
-    readQuestion:
+    read_question:
 
-        mov [question_num], EAX
+        mov [question_num], EAX ; the wanted question to print
 
+    open_file:
+        push EBX
+        push ECX
+        push EDX
         ; syscall to open a file
         ;                   eax     ebx                     ecx         edx
         ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
@@ -49,13 +53,14 @@
         mov EBX, [file_descriptor]  ; the fd
         mov ECX, buffer ; buffer pointer
         mov EDX, 100    ; amount of bytes
-        int 0x80
+        int 0x80        ; interruption to read 100 bytes
         
     start_read:
 
         mov ESI, buffer     ; pointer to buffer
         mov ECX, -1         ; count the questions, start at -1 to account 
-        ; for the initial : of the amount of answer in the questions.txt
+        ; for the initial : of the amount of questions in the questions.txt
+        jmp read_loop
 
     read_loop:
 
@@ -69,9 +74,10 @@
         jmp read_loop       ; repeat
 
     found_question:
+
         inc ECX ; increase the question counter
         inc ESI ; go to the next byte
-        cmp ECX, [question_num]
+        cmp ECX, [question_num] ; check if it is the question we need
         jl read_loop
         ; the format of the file is, that after every :, there is the correct answer
         ; it can be A, B, C, D, let's move that into a memory segment
@@ -85,7 +91,7 @@
 
     find_end:
 
-        cmp byte [EDI], 0
+        cmp byte [EDI], 0   ; this means we have read but not to the end of the question
         je print_question
 
         cmp byte [EDI], ']'
@@ -103,7 +109,20 @@
         jmp close_file
 
     print_question:
+
         PutStr ESI
+
+    read_left:
+
+        mov EAX, 3          ; sys_read
+        mov EBX, [file_descriptor]  ; the fd
+        mov ECX, buffer ; buffer pointer
+        mov EDX, 100    ; amount of bytes
+        int 0x80        ; interruption to read 100 bytes
+
+        mov ESI, buffer
+        mov ESI, buffer
+        jmp find_end
 
     close_file:
         ; Close the file

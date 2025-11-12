@@ -15,9 +15,9 @@
     
 .CODE
 
-    global random
+    global get_rand
 
-    random:
+    get_rand:
         mov [question_size], EAX
         ; Divide by amount of questions
         ; To get the modulo after

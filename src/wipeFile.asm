@@ -11,7 +11,7 @@
 
 .DATA
 
-    file_name   db "src/saves/seenAnswers.txt", 0
+    file_name   db "src/saves/seenQuestions.txt", 0
 
 .CODE
 

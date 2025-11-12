@@ -31,7 +31,6 @@
 
 .CODE
 
-    extern save_score
     extern get_question
     extern wipe_file
 
@@ -53,9 +52,9 @@ ask_player_name:
     PutStr player_num
     PutLInt EDX
     PutStr ask_name
-    nwln
     
     GetStr EBX, 19
+    nwln
     cmp EDX, [amt_players]
     jge turns_start
     add EBX, 20 ; go to the next name
@@ -66,10 +65,15 @@ turns_start:
     mov EBX, 0 ; this is the counter for turns
 
 turn_loop:
-    mov EDX, 0 ; back to player 0
     cmp EBX, 10
     jge show_scores
     inc EBX
+    mov EDX, 0 ; back to player 0
+
+;Al completarse la partida de 10 preguntas el juego terminará, mostrando
+;los puntos obtenidos y el ranking (si hay múltiples jugadores). Un jugador
+;podrá terminar cuando lo desee, en ese momento se brindarán los puntos
+;acumulados y el ranking (si hay múltiples jugadores).
 
 play_loop:
     
@@ -83,6 +87,7 @@ play_loop:
     ; else the answer is incorrect
 
 incorrect:
+
     PutStr wrong_msg
     nwln
     PutStr correct_ans
@@ -114,7 +119,7 @@ show_scores:
     
 show_scores_loop:
     cmp ECX, [amt_players]
-    jge save_scores
+    jge done
     
     PutStr score_msg
     mov AX, [scores + ECX * 2]
@@ -122,13 +127,6 @@ show_scores_loop:
     nwln
     inc ECX
     jmp show_scores_loop
-
-save_scores:
-
-    mov EBX, scores
-    mov AX, [amt_players]
-    mov EDX, names
-    call save_score
 
 done:
     ret

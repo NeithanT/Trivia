@@ -1,6 +1,6 @@
-Cantidad de Preguntas:40
+Cantidad de Preguntas:49
 Respuesta correcta:D
-Que vale más en el comedor del TEC?
+Que vale mas en el comedor del TEC?
 A) ensalada
 B) arroz
 C) pinto
@@ -28,7 +28,7 @@ C) Volcan Trazu
 D) Volcan Turrialba
 ]
 Respuesta correcta:C
-Que porcentaje aproximado del territorio costarricense está protegido?
+Que porcentaje aproximado del territorio costarricense esta protegido?
 A) 10%
 B) 15%
 C) 25%
@@ -36,10 +36,10 @@ D) 40%
 ]
 Respuesta correcta:B
 Quien es considerado el heroe nacional de Costa Rica?
-A) José Figueres Ferrer
-B) Juan Santamaría
+A) Jose Figueres Ferrer
+B) Juan Santamaria
 C) Braulio Carrillo
-D) Juan Mora Fernández
+D) Juan Mora Fernandez
 ]
 Respuesta correcta:C
 Cual es la moneda oficial de Costa Rica?
@@ -49,7 +49,7 @@ C) Colon
 D) Bolivar
 ]
 Respuesta correcta:A
-En qué batalla destacó Juan Santamaría?
+En que batalla destaco Juan Santamaria?
 A) Batalla de Rivas
 B) Batalla de Santa Rosa
 C) Batalla de Ochomogo
@@ -98,7 +98,7 @@ C) 29 de octubre
 D) 1 de enero
 ]
 Respuesta correcta:B
-Cual es el parque nacional más visitado de Costa Rica?
+Cual es el parque nacional mas visitado de Costa Rica?
 A) Parque Nacional Corcovado
 B) Parque Nacional Manuel Antonio
 C) Parque Nacional Tortuguero
@@ -112,14 +112,14 @@ C) Cerro de la Muerte
 D) Volcan Irazu
 ]
 Respuesta correcta:B
-Qué presidente abolio el ejército en Costa Rica?
-A) Rafael Angel Calderón Guardia
+Que presidente abolio el ejercito en Costa Rica?
+A) Rafael Angel Calderon Guardia
 B) Jose Figueres Ferrer
 C) Otilio Ulate Blanco
 D) Francisco J. Orlich
 ]
 Respuesta correcta:B
-Cual es el plato tipico más representativo de Costa Rica?
+Cual es el plato tipico mas representativo de Costa Rica?
 A) Casado
 B) Gallo pinto
 C) Olla de carne
@@ -134,7 +134,7 @@ D) Heredia
 ]
 Respuesta correcta:C
 Cual fue la primera capital de Costa Rica?
-A) San José
+A) San Jose
 B) Heredia
 C) Cartago
 D) Alajuela
@@ -155,13 +155,13 @@ D) 15%
 ]
 Respuesta correcta:C
 Cual es el principal aeropuerto internacional de Costa Rica?
-A) Aeropuerto Tobías Bolaños
+A) Aeropuerto Tobias Bolanos
 B) Aeropuerto Daniel Oduber
-C) Aeropuerto Juan Santamaría
+C) Aeropuerto Juan Santamaria
 D) Aeropuerto de Liberia
 ]
 Respuesta correcta:C
-En que tiempo se fundó la Universidad de Costa Rica?
+En que tiempo se fundo la Universidad de Costa Rica?
 A) 1821
 B) 1888
 C) 1940
@@ -227,7 +227,7 @@ Respuesta correcta:D
 Cual termino se usa para el gentilicio de personas de Costa Rica?
 A) Maes
 B) Costaricos
-C) Costarriquenos
+C) Costarricenses
 D) Ticos
 ]
 Respuesta correcta:C
@@ -278,4 +278,49 @@ A) Volcan Irazu
 B) Cerro Chirripo
 C) Volcan Poas
 D) Volcan Arenal
+]
+Respuesta correcta:B
+Costa Rica no tiene ejercito permanente desde 1948?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+Costa Rica limita con El Salvador?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El idioma oficial de Costa Rica es el ingles?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+Costa Rica tiene costa en el Pacifico y en el Caribe?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El Parque Nacional Manuel Antonio es el parque nacional mas grande del pais?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+El Lago Arenal es el lago mas grande de Costa Rica?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+“Pura vida” se usa como saludo y para decir que todo esta bien?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+Cartago tiene costa en el mar Caribe?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El ave nacional es el quetzal?
+A) Verdadero
+B) Falso
 ]
