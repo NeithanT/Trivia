@@ -9,6 +9,8 @@
 
 %include "io.mac"
 
+global file_descriptor
+
 .DATA
     file_name       db "src/saves/questions.txt", 0
     search_str      db "Opcion correcta:", 0

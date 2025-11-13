@@ -1,0 +1,326 @@
+Cantidad de Preguntas:49
+Respuesta correcta:D
+Que vale mas en el comedor del TEC?
+A) ensalada
+B) arroz
+C) pinto
+D) queso
+]
+Respuesta correcta:B
+Cual es la capital de Costa Rica?
+A) Cartago
+B) San Jose
+C) Alajuela
+D) Heredia
+]
+Respuesta correcta:B
+En que tiempo se abolio el ejercito en Costa Rica?
+A) 1821
+B) 1948
+C) 1956
+D) 1963
+]
+Respuesta correcta:C
+Cual es el volcan mas alto de Costa Rica?
+A) Volcan Poas
+B) Volcan Arenal
+C) Volcan Trazu
+D) Volcan Turrialba
+]
+Respuesta correcta:C
+Que porcentaje aproximado del territorio costarricense esta protegido?
+A) 10%
+B) 15%
+C) 25%
+D) 40%
+]
+Respuesta correcta:B
+Quien es considerado el heroe nacional de Costa Rica?
+A) Jose Figueres Ferrer
+B) Juan Santamaria
+C) Braulio Carrillo
+D) Juan Mora Fernandez
+]
+Respuesta correcta:C
+Cual es la moneda oficial de Costa Rica?
+A) Peso costarricense
+B) Dolar
+C) Colon
+D) Bolivar
+]
+Respuesta correcta:A
+En que batalla destaco Juan Santamaria?
+A) Batalla de Rivas
+B) Batalla de Santa Rosa
+C) Batalla de Ochomogo
+D) Batalla de La Trinidad
+]
+Respuesta correcta:A
+Cual es la mejor universidad de Costa Rica?
+A) Universidad de Costa Rica        UCR
+B) Universidad Nacional             UNA
+C) Tecnologico de Costa Rica        TEC
+D) Universidad Estatal a Distancia  UNED
+]
+Respuesta correcta:C
+Cual es la mejor universidad de INGENIERIAS de Costa Rica?
+A) Universidad de Costa Rica        UCR
+B) Universidad Nacional             UNA
+C) Tecnologico de Costa Rica        TEC
+D) Universidad Estatal a Distancia  UNED
+]
+Respuesta correcta:C
+Cual ave es el simbolo nacional de Costa Rica?
+A) Tucan
+B) Quetzal
+C) Yiguirro
+D) Guacamaya
+]
+Respuesta correcta:B
+Cuantas provincias tiene Costa Rica?
+A) 5
+B) 7
+C) 9
+D) 10
+]
+Respuesta correcta:B
+En que tiempo Costa Rica obtuvo su independencia?
+A) 1810
+B) 1821
+C) 1848
+D) 1856
+]
+Respuesta correcta:C
+En que dia llego el acta de independencia a Costa Rica?
+A) 15 de septiembre
+B) 25 de agosto
+C) 29 de octubre
+D) 1 de enero
+]
+Respuesta correcta:B
+Cual es el parque nacional mas visitado de Costa Rica?
+A) Parque Nacional Corcovado
+B) Parque Nacional Manuel Antonio
+C) Parque Nacional Tortuguero
+D) Parque Nacional Chirripo
+]
+Respuesta correcta:A
+Cual es el relieve mas alto de Costa Rica?
+A) Cerro Chirripo
+B) Cerro Kamuk
+C) Cerro de la Muerte
+D) Volcan Irazu
+]
+Respuesta correcta:B
+Que presidente abolio el ejercito en Costa Rica?
+A) Rafael Angel Calderon Guardia
+B) Jose Figueres Ferrer
+C) Otilio Ulate Blanco
+D) Francisco J. Orlich
+]
+Respuesta correcta:B
+Cual es el plato tipico mas representativo de Costa Rica?
+A) Casado
+B) Gallo pinto
+C) Olla de carne
+D) Tamales
+]
+Respuesta correcta:B
+En que provincia se encuentra el Volcan Arenal?
+A) Guanacaste
+B) Alajuela
+C) Cartago
+D) Heredia
+]
+Respuesta correcta:C
+Cual fue la primera capital de Costa Rica?
+A) San Jose
+B) Heredia
+C) Cartago
+D) Alajuela
+]
+Respuesta correcta:B
+Que arbol es el simbolo nacional de Costa Rica?
+A) Ceiba
+B) Guanacaste
+C) Pochote
+D) Guacimo
+]
+Respuesta correcta:B
+Que porcentaje aproximado de biodiversidad mundial se encuentra en Costa Rica?
+A) 2%
+B) 5%
+C) 10%
+D) 15%
+]
+Respuesta correcta:C
+Cual es el principal aeropuerto internacional de Costa Rica?
+A) Aeropuerto Tobias Bolanos
+B) Aeropuerto Daniel Oduber
+C) Aeropuerto Juan Santamaria
+D) Aeropuerto de Liberia
+]
+Respuesta correcta:C
+En que tiempo se fundo la Universidad de Costa Rica?
+A) 1821
+B) 1888
+C) 1940
+D) 1956
+]
+Respuesta correcta:B
+Cual es el deporte mas popular en Costa Rica?
+A) Beisbol
+B) Futbol
+C) Baloncesto
+D) Voleibol
+]
+Respuesta correcta:B
+Que pais tiene borde con Costa Rica?
+A) Puerto Rico
+B) Panama
+C) Honduras
+D) Colombia
+]
+Respuesta correcta:B
+Cual es la flor nacional de Costa Rica?
+A) Rosa
+B) Orquidea Guaria Morada
+C) Lirio
+D) Clavel
+]
+Respuesta correcta:D
+En que provincia se encuentra la peninsula de Nicoya?
+A) Puntarenas
+B) Guanacaste
+C) Limon
+D) Ambas A y B
+]
+Respuesta correcta:A
+Cual es el nombre del himno nacional de Costa Rica?
+A) Noble patria, tu hermosa bandera
+B) Himno patriotico al 15 de Setiembre
+C) Salve, oh patria
+D) Patriotica Costarricense
+]
+Respuesta correcta:B
+Que zona de Costa Rica es famosa por el desove de tortugas marinas?
+A) Guanacaste
+B) Tortuguero
+C) Manuel Antonio
+D) Corcovado
+]
+Respuesta correcta:A
+Cuantos colores tiene la bandera de Costa Rica?
+A) 3
+B) 4
+C) 5
+D) 6
+]
+Respuesta correcta:C
+Que expresion tipica tica se usa para llamar a personas?
+A) Tuanis
+B) Pura vida
+C) Mae
+D) Upe
+]
+Respuesta correcta:D
+Cual termino se usa para el gentilicio de personas de Costa Rica?
+A) Maes
+B) Costaricos
+C) Costarricenses
+D) Ticos
+]
+Respuesta correcta:C
+En que ciudad se encuentra el Teatro Nacional de Costa Rica?
+A) Cartago
+B) Heredia
+C) San Jose
+D) Alajuela
+]
+Respuesta correcta:A
+Cual es el principal producto exportado de Costa Rica?
+A) Cafe
+B) Banano
+C) Azucar
+D) Tabaco
+]
+Respuesta correcta:A
+Cual es el lago mas grande de Costa Rica?
+A) Lago Arenal
+B) Lago Hule
+C) Lago Cote
+D) Lago del Cuarto Rio
+]
+Respuesta correcta:B
+Cual parque nacional es famoso por las tortugas?
+A) Parque Nacional Corcovado
+B) Parque Nacional Tortuguero
+C) Parque Nacional Manuel Antonio
+D) Parque Nacional Chirripo
+]
+Respuesta correcta:B
+Cual es la poblacion aproximada de Costa Rica?
+A) 3 millones
+B) 5 millones
+C) 7 millones
+D) 10 millones
+]
+Respuesta correcta:A
+Cual es el idioma oficial de Costa Rica?
+A) Espanol
+B) Ingles
+C) Frances
+D) Hindi
+]
+Respuesta correcta:B
+Cual es el punto mas alto de Costa Rica?
+A) Volcan Irazu
+B) Cerro Chirripo
+C) Volcan Poas
+D) Volcan Arenal
+]
+Respuesta correcta:B
+Costa Rica no tiene ejercito permanente desde 1948?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+Costa Rica limita con El Salvador?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El idioma oficial de Costa Rica es el ingles?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+Costa Rica tiene costa en el Pacifico y en el Caribe?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El Parque Nacional Manuel Antonio es el parque nacional mas grande del pais?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+El Lago Arenal es el lago mas grande de Costa Rica?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:A
+“Pura vida” se usa como saludo y para decir que todo esta bien?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+Cartago tiene costa en el mar Caribe?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+El ave nacional es el quetzal?
+A) Verdadero
+B) Falso
+]
