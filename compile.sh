@@ -7,9 +7,10 @@ nasm -f elf32 src/getQuestion.asm -o getQuestion.o
 nasm -f elf32 src/getRand.asm -o getRand.o
 nasm -f elf32 src/wipeFile.asm -o wipeFile.o
 nasm -f elf32 src/showQuestions.asm -o showQuestions.o
+nasm -f elf32 src/changeCount.asm -o changeCount.o
 
-ld -s -m elf_i386 main.o showIntro.o game.o addQuestion.o getQuestion.o readQuestion.o getRand.o wipeFile.o showQuestions.o -o main io.o
+ld -s -m elf_i386 main.o showIntro.o game.o addQuestion.o getQuestion.o readQuestion.o getRand.o wipeFile.o showQuestions.o changeCount.o -o main io.o
 
 ./main
 
-rm main.o showIntro.o game.o addQuestion.o getQuestion.o readQuestion.o getRand.o wipeFile.o showQuestions.o main
+rm main.o showIntro.o game.o addQuestion.o getQuestion.o readQuestion.o getRand.o wipeFile.o showQuestions.o changeCount.o main

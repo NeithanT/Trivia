@@ -27,4 +27,6 @@
         div ECX  ; now the modulo or residue, should be in EDX!
         ; let's move it to EAX!
     
+        mov EAX, EDX
+        
         ret

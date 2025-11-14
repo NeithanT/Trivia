@@ -27,6 +27,7 @@
     extern get_rand
 
     global get_question
+    global get_amt_questions
     ; The purpose is to print a question
     ; and return the correct answer in EAX
     ; it needs the checks to verify the questions has not been seen before
@@ -40,18 +41,19 @@
         mov EDX, 0 ; no special modes
         int 0x80
 
-        mov EBX, EAX    ; the file descriptor
+        mov EBX, EAX    ; the file descriptor returns in EAX
 
         mov EAX, 3          ; sys_read
         mov ECX, buffer ; buffer pointer
         mov EDX, 100    ; amount of bytes
         int 0x80   
 
-        ; look for a :
         mov ESI, buffer  ; the index for chars
         mov EAX, 0
 
     read_loop:
+
+        ; look for a : that's where the amount of questions are
 
         cmp BYTE [ESI], ':'
         je read_amt
@@ -59,20 +61,23 @@
         jmp read_loop
 
     read_amt:
-        mov ECX, 10
-        mul CX  ; multiply EAX by 10 to adjust for the system number
+
         inc ESI ; get the first num
         cmp BYTE [ESI], '0'
         jl end_num
         cmp BYTE [ESI], '9'
         jg end_num
-        mov AL, BYTE [ESI] ; the number now is in EAX
+        mov ECX, 10
+        mul CX
+        add AL, BYTE [ESI] ; the number now is in EAX
         sub EAX, '0'
         jmp read_amt
 
     end_num:
+        push EAX
         mov EAX, 6          ; sys_close
         int 0x80
+        pop EAX
         ret
 
     get_question:

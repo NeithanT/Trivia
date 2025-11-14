@@ -1,4 +1,4 @@
-Cantidad de Preguntas:49
+Cantidad de Preguntas:50
 Respuesta correcta:D
 Que vale mas en el comedor del TEC?
 A) ensalada
@@ -321,6 +321,11 @@ B) Falso
 ]
 Respuesta correcta:B
 El ave nacional es el quetzal?
+A) Verdadero
+B) Falso
+]
+Respuesta correcta:B
+Costa Rica es el pais mas grande de CentroAmerica?
 A) Verdadero
 B) Falso
 ]

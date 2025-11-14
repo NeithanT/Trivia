@@ -5,7 +5,7 @@
 ;--------------------Proyecto #01---------------------------
 ;---------Neithan Vargas Vargas, carne: 2025149384----------
 ;---------Fabricio Hernandez, carne: 2025106763-------------
-;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
+;---2025/11/15 , II Periodo, Profesor: MS.c Esteban Arias---
 
 
 %include "io.mac"
@@ -25,6 +25,37 @@
     scores      dw 0, 0, 0, 0
     turns       dd 10
     score_table dw 100, 100, 100, 100, 100, 200, 200, 200, 300, 300
+
+    here1       db "it got here 1", 0
+
+    here2       db "here 2", 0
+
+    here3       db "here 3", 0
+
+    here4       db "here 4", 0
+
+    here5       db "here 5", 0
+
+    here6       db "here 6", 0
+
+    here7       db "here 7", 0
+
+    here8       db "here 8", 0
+
+    here9       db "here 9", 0
+
+    here10      db "here 10", 0
+
+    here11      db "here 11", 0
+
+    here12      db "here 12", 0
+
+    here13      db "here 13", 0
+
+    here14      db "here 14", 0
+
+    here15      db "here 15", 0
+
 .UDATA
     answer      resb 1
     names       resb 80
@@ -37,6 +68,8 @@
     global play_game
 
 play_game:
+    PutStr here1
+    nwln
     mov [amt_players], AX   ; AX must have the amount of players for the call
     call wipe_file  ; wipes the seenAnswer txt, note that AX is gone now!
     mov ECX, 0 ; ECX is going to be our turn counter
@@ -61,6 +94,10 @@ ask_player_name:
     jmp ask_player_name
 
 turns_start:
+
+    PutStr here8
+
+    nwln
 
     mov EBX, 0 ; this is the counter for turns
 

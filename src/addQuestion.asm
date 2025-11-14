@@ -5,7 +5,7 @@
 ;--------------------Proyecto #01---------------------------
 ;---------Neithan Vargas Vargas, carne: 2025149384----------
 ;---------Fabricio Hernandez, carne: 2025106763-------------
-;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
+;---2025/11/15 , II Periodo, Profesor: MS.c Esteban Arias---
 
 
 
@@ -13,20 +13,25 @@
 
 .DATA
 
-    file_descriptor db 0
+    file_descriptor dd 0
     file_name       db "src/saves/questions.txt", 0
     ask_type        db 9, 9, "Que tipo de pregunta va a ser:", 0
-    multi           db 9, "1 - Opcion Multiple", 0
-    true_false      db 9, "2 - Verdadero o Falso", 0
-    option          db 9, "Ingrese una opcion:", 0
-    invalid_opt     db 9, "Opcion Invalida", 0
-    ask_question    db 9, "Ingresa la Pregunta: ", 0
-    ask_answer      db 9, "Opcion #", 0
-    ask_correct     db 9, "Respuesta correcta:"
+    multi           db 9, 9, "1 - Opcion Multiple", 0
+    true_false      db 9, 9, "2 - Verdadero o Falso", 0
+    option          db 9, 9, "Ingrese una opcion:", 0
+    invalid_opt     db 9, 9, "Opcion Invalida", 0
+    ask_question    db 9, 9, "Ingresa la Pregunta: ", 0
+    ask_answer      db 9, 9, "Opcion #", 0
+    ask_correct     db 9, 9, "Respuesta correcta: ", 0
+    ask_true_false  db 9, 9, "Es Verdadera o Falsa:", 0
+    true            db 9, 9, "A) Verdadero", 0
+    false           db 9, 9, "B) Falso", 0
 
-    ask_true_false  db "Es Verdadera o Falsa", 0
-    true            db "A) Verdadero", 0
-    false           db "B) Falso", 0
+    added           db 9, 9, "Se agrego pregunta correctamente", 0
+
+    correct_save    db "Respuesta correcta:", 0
+    true_save       db "A) Verdadero", 0
+    false_save      db "B) Falso", 0
 
     close_question  db ']'
     double_point    db ':'
@@ -37,16 +42,15 @@
     question    resb 100
     answer      resb 200
     correct_ans resb 1
-    small_buff  resb 2
+    small_buff  resb 5
 
 .CODE
+
+    extern change_count
 
     global add_question
 
 add_question:
-
-
-
 
     mov EAX, 5      ; open mode
     mov EBX, file_name
@@ -59,7 +63,7 @@ add_question:
 
     int 0x80
 
-    mov EBX, EAX ; move the file descriptor
+    mov [file_descriptor], EAX ; move the file descriptor
 
     ; The objective is to ask for a question
     ; save it at the end
@@ -67,11 +71,14 @@ add_question:
 
     PutStr ask_type
     nwln
+    jmp put_options
 
 invalid:
-    PutStr invalid_opt
 
-put_options:
+    PutStr invalid_opt
+    nwln
+
+put_options: 
 
     PutStr multi
     nwln
@@ -95,13 +102,14 @@ ask_quest:
     ret
     
 count_chars:
+
     mov EAX, 0
 
 count_chars_loop:
 
-    cmp BYTE [EBX], 0
+    cmp BYTE [ECX], 0
     je count_done
-    inc EBX
+    inc ECX
     inc EAX
     jmp count_chars_loop
 
@@ -109,7 +117,7 @@ count_done:
 
     ret
 
-    ; this is going to count the len of the string in EBX
+    ; this is going to count the len of the string in ECX
 
 multiple_option:
 
@@ -124,8 +132,9 @@ multiple_loop:
     PutStr ask_answer
     PutCh CL
     PutCh ':'
-    inc CL
+    PutCh ' ' ; cheap way to put a space 
     GetStr  EBX, 50
+    inc CL
     add EBX, 50
     jmp multiple_loop
 
@@ -138,7 +147,6 @@ ask_correct_label:
     ; now, its time to ask for which of the inputted options
     ; is the correct one
     PutStr ask_correct
-    mov EBX, 0
     GetCh BL
     cmp BL, 'A'
     jl invalid_correct
@@ -149,17 +157,22 @@ write_multiple:
 
     ; time to write the Respuesta correcta:
     mov [correct_ans], BL ; save the correct answer
-    mov EBX, ask_correct
+
+    call write_newline
+
+    mov ECX, correct_save
     call count_chars
+    mov ECX, correct_save
     mov EDX, EAX
 
     mov EAX, 4
     mov EBX, [file_descriptor]
-    mov ECX, ask_correct
     int 0x80
 
     ; wrote the Respuesta correcta, now for the actual correct answer
     
+    mov EAX, 4
+    mov EBX, [file_descriptor]
     mov ECX, correct_ans
     mov EDX, 1
     int 0x80
@@ -170,11 +183,15 @@ write_multiple:
     mov [small_buff + 1], BYTE ')'
     mov [small_buff + 2], BYTE ' '
     mov [small_buff + 3], BYTE 0
-    mov ECX, answer
-    mov EDX, 50
 
+    mov ECX, answer
 
 write_multiple_loop:
+
+    cmp AL, 'E'
+    je write_done
+
+    push ECX
 
     mov EAX, 4
     mov EBX, [file_descriptor]
@@ -182,11 +199,21 @@ write_multiple_loop:
     mov EDX, 3
     int 0x80
 
-    mov ECX, answer
-    mov EDX, 50
+    pop ECX
+    push ECX
+    call count_chars
+    mov EDX, EAX
+    pop ECX
+
+    mov EAX, 4
+    mov EBX, [file_descriptor]
     int 0x80
 
+    push ECX
     call write_newline
+    pop ECX
+
+    add ECX, 50 ; next answer
 
     mov AL, BYTE [small_buff]
     inc AL
@@ -205,7 +232,8 @@ true_false_label:
     nwln
     jmp ask_ans_true_false
 
-not_valid:
+not_valid_tf:
+
     PutStr invalid
     nwln
 
@@ -218,27 +246,28 @@ ask_ans_true_false:
     cmp AL, 'B'
     je save_true_false
 
-    jmp not_valid
-
+    jmp not_valid_tf
 
 save_true_false:
 
-    mov [answer], WORD 0    ; set to 0 the first two bytes
-    mov [answer], AL ; move the correct answer
-    mov EBX, correct_ans
+    mov [correct_ans], AL ; move the correct answer
+
+    call write_newline
+ 
+    mov ECX, correct_save
     call count_chars
+    mov ECX, correct_save
     mov EDX, EAX
 
     ; write syscall
     mov EAX, 4
     mov EBX, [file_descriptor]
-    mov ECX, correct_ans
     int 0x80
 
     ; Now the respueta correcta is in the text file, time to copy
     ; the actual correct response
-
-    mov ECX, answer
+    mov EAX, 4
+    mov ECX, correct_ans
     mov EDX, 1 ; only write the correct answer plus the newline!
     int 0x80
 
@@ -246,9 +275,9 @@ save_true_false:
 
     ; now is time to write the question and answer
 
-    mov EBX, question
+    mov ECX, question
     call count_chars
-    mov ECX, EBX ; the question pointer
+    mov ECX, question ; the question pointer
     mov EDX, EAX
 
     mov EAX, 4
@@ -259,9 +288,9 @@ save_true_false:
 
     ; now is time to write Verdadero, Falso and ]
 
-    mov EBX, true
+    mov ECX, true_save
     call count_chars
-    mov ECX, EBX
+    mov ECX, true_save
     mov EDX, EAX
 
     mov EAX, 4
@@ -273,15 +302,15 @@ save_true_false:
 
     ; now is time to write false
 
-    mov EBX, true
+    mov ECX, false_save
     call count_chars
-    mov ECX, EBX
+    mov ECX, false_save
     mov EDX, EAX
 
     mov EAX, 4
     mov EBX, [file_descriptor]
     int 0x80
-    ; wrote true
+    ; wrote false
 
     call write_newline
 
@@ -294,9 +323,10 @@ write_done:
     mov EDX, 1
     int 0x80
 
-    call write_newline
+    jmp close_file
 
 write_newline:
+
     mov EAX, 4
     mov EBX, [file_descriptor]
     mov ECX, newline
@@ -304,6 +334,16 @@ write_newline:
     int 0x80
     ret
 
-done:
+close_file:
+    mov EAX, 6          ; sys_close
+    mov EBX, [file_descriptor]
+    int 0x80
 
+done:
+    
+    call change_count
+
+    nwln
+    PutStr added
+    nwln
     ret
