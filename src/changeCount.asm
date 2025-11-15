@@ -66,14 +66,16 @@
 
         int 0x80
 
-        mov EBX, EAX
-        mov EAX, 5
+        mov [file_descriptor], EAX
+
+        mov EAX, 4
+        mov EBX, [file_descriptor]
         mov ECX, comma
         mov EDX, 1
-
         int 0x80
 
         mov EAX, 6
+        mov EBX, [file_descriptor]
         int 0x80
         ; close the file!
         ; just writes a , 

@@ -85,7 +85,7 @@
         ret
 
     get_question:
-
+        pusha
         call get_amt_questions ; the amt of questions should NOW be in EAX
         mov [amt_questions], EAX
 
@@ -159,6 +159,8 @@
         mov EAX, [current_quest]
         call append_amt
         call append_comma
+        popa
+        
         mov EAX, [current_quest]
         call read_question
         ret

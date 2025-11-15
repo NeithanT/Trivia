@@ -35,69 +35,41 @@
         mov ECX, buffer ; buffer pointer
         mov EDX, 10000    ; amount of bytes
         int 0x80
-        ; account for the starting empty line
-
-    read:
-
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]  ; the fd
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 100    ; amount of bytes
-        int 0x80        ; interruption to read 100 bytes
-
+        ; EAX now has the number of bytes read
+        mov [buffer + EAX], BYTE 0 ; Null-terminate the buffer
 
         mov ESI, buffer
-        cmp BYTE [ESI], 0
-        je done
 
     find_question:
+        cmp BYTE [ESI], 0   ; End of buffer
+        je done
 
         cmp BYTE [ESI], ':'
         je find_end
-        cmp BYTE [ESI], 0   ; the buffer ended
-        je read             ; read more bytes
         inc ESI
         jmp find_question
 
     find_end:
-        inc ESI ; skip to the next, the answer
-        cmp BYTE [ESI], 0    ; check if the buffer ended
-        je read_more
-        inc ESI ; NOW, it should be in the endline
-        cmp BYTE [ESI], 0    ; check if the buffer ended
-        je read_more
-        inc ESI ; NOW, it should be in theee start of the question
-        cmp BYTE [ESI], 0    ; check if the buffer ended
-        je read_more
+        inc ESI ; skip ':', now at the answer
+        inc ESI ; skip answer, now at the endline
+        inc ESI ; skip endline, now at the start of the question '['
         mov EDI, ESI
         jmp find_end_loop
-
-    read_more:
-
-        PutStr ESI
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]  ; the fd
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 50    ; amount of bytes
-        int 0x80        ; interruption to read 100 bytes
-
-        mov ESI, buffer
-        mov EDI, ESI
 
     find_end_loop:
         inc EDI
         cmp BYTE [EDI], ']'
         je print
         cmp BYTE [EDI], 0
-        je read_more
+        je done ; End of buffer, something is wrong with the format but we exit
         jmp find_end_loop
 
     print:
-
         mov [EDI], BYTE 0
         PutStr ESI
         mov [EDI], BYTE ']'
         mov ESI, EDI
+        inc ESI ; Move past ']'
         jmp find_question
 
 
