@@ -98,7 +98,6 @@
         int 0x80 ; Execute syscall to read from file
 
         mov ESI, buffer ; Point to start of newly read buffer
-        mov ESI, buffer ; Duplicate (redundant but kept from original)
         jmp find_end ; Continue finding the end of the question
 
     close_file:
