@@ -21,55 +21,63 @@
     global show_quest
 
     show_quest:
-        mov EAX, 5 ; Load syscall number for open (0x05)
-        mov EBX, file_name ; Point to questions.txt filename
-        mov ECX, 0 ; Set flags to 0 for read-only access
-        mov EDX, 0 ; No special file mode bits needed
-        int 0x80 ; Execute syscall to open the file
+        mov EAX, 5 ; Get ready to open the file
+        mov EBX, file_name ; Point to the questions file
+        mov ECX, 0 ; Open it just for reading
+        mov EDX, 0 ; No fancy stuff needed
+        int 0x80 ; Open the file
 
-        mov [file_descriptor], AL ; Store low byte of file descriptor
+        mov [file_descriptor], AL ; Save the file handle
 
-        mov EAX, 3 ; Load syscall number for read (0x03)
-        mov EBX, [file_descriptor] ; Get the file descriptor
-        mov ECX, buffer ; Point to the buffer for file contents
-        mov EDX, 10000 ; Read up to 10000 bytes from file
-        int 0x80 ; Execute syscall to read entire file into buffer
+        mov EAX, 3 ; Get ready to read
+        mov EBX, [file_descriptor] ; Use our file handle
+        mov ECX, buffer ; Read into our buffer
+        mov EDX, 10000 ; Read a bunch of bytes
+        int 0x80 ; Read the whole file
         
-        mov [buffer + EAX], BYTE 0 ; Null-terminate the buffer at position EAX (bytes read)
+        mov [buffer + EAX], BYTE 0 ; Mark the end of what we read
 
-        mov ESI, buffer ; Point to start of buffer
+        mov ESI, buffer ; Start from the beginning
+        mov EDX, -1 ; Use EDX to remember if we skipped the header
 
     find_question:
-        cmp BYTE [ESI], 0 ; Check if we reached end of buffer (null terminator)
-        je done ; If at end, display is complete
+        cmp BYTE [ESI], 0 ; Check if we're at the end
+        je done ; If we're done, wrap it up
 
-        cmp BYTE [ESI], ':' ; Check if current character is ':' (question delimiter)
-        je find_end ; If ':' found, we found a question to display
-        inc ESI ; Move to next character
-        jmp find_question ; Continue searching
+        cmp BYTE [ESI], ':' ; Look for ':' markers
+        je found_delimiter ; Found a ':' - that's a marker
+        inc ESI ; Keep going
+        jmp find_question ; Keep looking
+
+    found_delimiter:
+        cmp EDX, -1 ; check if we skipped question
+        jne find_end ; If we already did the first one, show this question
+        mov EDX, 0 ; Remember we skipped the header
+        inc ESI ; Skip the header marker
+        jmp find_question ; Keep looking for real questions
 
     find_end:
-        inc ESI ; Move past ':', now at the correct answer character
-        inc ESI ; Move past answer, now at newline character
-        inc ESI ; Move past newline, now at the start of question '['
-        mov EDI, ESI ; Copy pointer to EDI for finding the end of question
-        jmp find_end_loop ; Begin searching for end marker
+        inc ESI ; Skip the ':' and get to the answer
+        inc ESI ; Skip the answer letter
+        inc ESI ; Skip the newline, now at the question
+        mov EDI, ESI ; Set up to find where the question ends
+        jmp find_end_loop ; Start looking for the end
 
     find_end_loop:
-        inc EDI ; Move to next character
-        cmp BYTE [EDI], ']' ; Check if current character is ']' (question end marker)
-        je print ; If found, we've reached the end of this question
-        cmp BYTE [EDI], 0 ; Check if we reached end of buffer (null terminator)
-        je done ; If at end, something is wrong with format but exit
-        jmp find_end_loop ; Continue searching for end marker
+        inc EDI ; Keep going
+        cmp BYTE [EDI], ']' ; Look for the end marker ']'
+        je print ; Found it, stop here
+        cmp BYTE [EDI], 0 ; Check if we're at the end
+        je done ; If we're done, wrap it up
+        jmp find_end_loop ; Keep looking for the end
 
     print:
-        mov [EDI], BYTE 0 ; Replace ']' with null terminator to end string
-        PutStr ESI ; Display the question text
-        mov [EDI], BYTE ']' ; Restore the ']' character back to original
-        mov ESI, EDI ; Move to the position of ']'
-        inc ESI ; Move past ']' to next character
-        jmp find_question ; Continue to find and display next question
+        mov [EDI], BYTE 0 ; Mark the end of the text
+        PutStr ESI ; Show the question
+        mov [EDI], BYTE ']' ; Put the ']' back
+        mov ESI, EDI ; Jump to where the ']' was
+        inc ESI ; Skip past the ']'
+        jmp find_question ; Keep going to the next question
 
     done:
-        ret ; Return from function
+        ret ; We're done here

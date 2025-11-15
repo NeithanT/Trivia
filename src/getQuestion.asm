@@ -77,7 +77,8 @@
         ret ; Return from function with question count in EAX
 
     get_question:
-    pusha ; push regs - keeping the scene clean
+    
+    pusha ; save registers
     call get_amt_questions ; ask how many questions we have
     mov [amt_questions], EAX ; stash the question count away
 
@@ -86,7 +87,7 @@
     try_again:
     mov EAX, 6 ; syscall close - close it if we try again
     mov EBX, [file_descriptor] ; the descriptor we want to close
-        int 0x80 ; Execute syscall to close the file
+    int 0x80 ; Execute syscall to close the file
 
     open_file:
     mov EAX, 5 ; syscall open - open seenQuestions
@@ -107,10 +108,11 @@
     get_rand_loop:
     mov EAX, [amt_questions] ; how many total questions are there
     call get_rand ; grab a random index in the range
+    add EAX, 1 ; Convert 0-based index to 1-based (file uses 1-based indexing)
     mov [current_quest], EAX ; remember this pick
         
     ; quick sanity check - make sure this pick is legit
-    cmp EAX, 0 ; is it negative? (shouldn't be)
+    cmp EAX, 1 ; is it less than 1? (shouldn't be, now 1-based)
     jl get_rand_loop ; nope, try again
     cmp EAX, [amt_questions] ; check if it's within the count
     jge get_rand_loop ; if out of range, spin again

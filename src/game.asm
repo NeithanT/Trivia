@@ -49,6 +49,7 @@ play_game:
     mov word [scores + 2], 0 ; Initialize player 2 score to 0
     mov word [scores + 4], 0 ; Initialize player 3 score to 0
     mov word [scores + 6], 0 ; Initialize player 4 score to 0
+    ; otherwise it gave errors sometimes
     
     mov EBX, names ; Point to start of names buffer
     mov EDX, 0 ; Initialize player counter to 0
@@ -83,7 +84,7 @@ play_loop:
     inc EDX ; Increment to 1-based for display
     PutLInt EDX ; Display player number
     nwln ; Print newline
-    dec EDX ; Decrement back to 0-based index
+    dec EDX ; Decrement back to index
 
     pop EBX ; Restore question index
     pop EDX ; Restore player index
@@ -101,6 +102,14 @@ play_loop:
     GetCh AL ; Read one character (A, B, C, D, or 0) into AL
     nwln ; Print newline
     
+    ; Convert lowercase to uppercase if necessary
+    cmp AL, 'a' ; Check if lowercase 'a'
+    jl check_quit ; If less than 'a', skip conversion
+    cmp AL, 'z' ; Check if greater than 'z'
+    jg check_quit ; If greater than 'z', skip conversion
+    sub AL, 32 ; Convert lowercase to uppercase (ASCII difference is 32)
+    
+check_quit:
     cmp AL, '0' ; Check if user entered '0' (quit game early)
     je show_scores ; If yes, jump to show final scores
     
