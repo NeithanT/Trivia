@@ -5,7 +5,7 @@
 ;--------------------Proyecto #01---------------------------
 ;---------Neithan Vargas Vargas, carne: 2025149384----------
 ;---------Fabricio Hernandez, carne: 2025106763-------------
-;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
+;---2025/11/15 , II Periodo, Profesor: MS.c Esteban Arias---
 
 %include "io.mac"
 
@@ -17,7 +17,7 @@
     correct_ans     db 0
 
 .UDATA
-    buffer          resb 100
+    buffer          resb 10000
 
 .CODE
 
@@ -28,9 +28,7 @@
         mov [question_num], EAX ; the wanted question to print
 
     open_file:
-        push EBX
-        push ECX
-        push EDX
+    
         ; syscall to open a file
         ;                   eax     ebx                     ecx         edx
         ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
@@ -52,7 +50,7 @@
         mov EAX, 3          ; sys_read
         mov EBX, [file_descriptor]  ; the fd
         mov ECX, buffer ; buffer pointer
-        mov EDX, 100    ; amount of bytes
+        mov EDX, 10000  ; amount of bytes
         int 0x80        ; interruption to read 100 bytes
         
     start_read:
@@ -77,6 +75,7 @@
 
         inc ECX ; increase the question counter
         inc ESI ; go to the next byte
+
         cmp ECX, [question_num] ; check if it is the question we need
         jl read_loop
         ; the format of the file is, that after every :, there is the correct answer

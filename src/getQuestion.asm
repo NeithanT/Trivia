@@ -5,7 +5,7 @@
 ;--------------------Proyecto #01---------------------------
 ;---------Neithan Vargas Vargas, carne: 2025149384----------
 ;---------Fabricio Hernandez, carne: 2025106763-------------
-;---2025/11/12 , II Periodo, Profesor: MS.c Esteban Arias---
+;---2025/11/15 , II Periodo, Profesor: MS.c Esteban Arias---
 
 
 %include "io.mac"
@@ -13,12 +13,14 @@
 .DATA
 
     file_name       db "src/saves/questions.txt", 0
-    file_answers    db "src/saves/seenQuestions.txt"
+    file_answers    db "src/saves/seenQuestions.txt", 0
+    file_descriptor dd 0
     amt_questions   dd 0
     current_quest   dd 0
-
+    
 .UDATA
-    buffer          resb 100
+
+    buffer          resb 1000
 
 
 .CODE
@@ -101,7 +103,15 @@
         mov EDX, 0 ; no special modes
         int 0x80
 
-        mov EBX, EAX ; move the file descriptor
+        mov [file_descriptor], EAX ; move the file descriptor
+
+    read:
+
+        mov EAX, 3          ; sys_read
+        mov EBX, [file_descriptor]
+        mov ECX, buffer ; buffer pointer
+        mov EDX, 1000    ; amount of bytes
+        int 0x80
 
     get_rand_loop:
 
@@ -109,46 +119,41 @@
         call get_rand   ; get's a random number in EAX, in range from 0 to EAX -1, cool!
         ; time to check if that questions has already appeared
         mov [current_quest], EAX ; save the question
-
-    read:
-
-        mov EAX, 3          ; sys_read
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 100    ; amount of bytes
-        int 0x80   
-
+        
         mov ESI, buffer
-        cmp BYTE [ESI], 0    ; check if the file ended even while reading more
-        jmp done    ; go to end
+        mov EAX, 0
+
+        jmp check_if_question
+
+    next_num:
+
+        mov EAX, 0
+        inc ESI
 
     check_if_question:
 
-        imul EAX, 10 ; account for the index
-        ; We have to read the number at ESI, The numbers are separated by a command, so
         cmp BYTE [ESI], 0    ; check if the buffer ended
-        je read ; read the next 100 bytes
-        cmp BYTE [ESI], '0'  ; check for weird chars for some reason 
-        jl analyze      ; jump to the cmp between EAX and the questions
-        cmp BYTE [ESI], '9'
-        jg analyze
+        je done
         cmp BYTE [ESI], ','
         je analyze
 
+        imul EAX, 10 ; account for the index
+        ; We have to read the number at ESI, The numbers are separated by a comma, so
+        
         add AL, BYTE [ESI]  ; account for the index
         sub EAX, '0'
         inc ESI
         jmp check_if_question
 
     analyze:
-        inc ESI
 
         cmp EAX, [current_quest]
-        je try_again
+        je get_rand_loop
 
-        jmp check_if_question ; go to check the next in seenQuestions otherwise
-
+        jmp next_num ; go to check the next in seenQuestions otherwise
         
     done:
+
         mov EAX, [current_quest]
         call read_question
         ret

@@ -13,7 +13,7 @@
 .DATA
     player_num  db 9, "Jugador #", 0
     ask_name    db 9, "Ingresa tu nombre: ", 0
-    ask_answer  db 9, "Tu respuesta [A | B | C | D]: ", 0
+    ask_answer  db 9, "Tu respuesta [0 para terminar]: ", 0
     correct_ans db 9, "La respuesta correcta era:"
     correct_msg db 9, "Correcta!", 0
     wrong_msg   db 9, "Incorrecta!", 0
@@ -28,34 +28,6 @@
 
     here1       db "it got here 1", 0
 
-    here2       db "here 2", 0
-
-    here3       db "here 3", 0
-
-    here4       db "here 4", 0
-
-    here5       db "here 5", 0
-
-    here6       db "here 6", 0
-
-    here7       db "here 7", 0
-
-    here8       db "here 8", 0
-
-    here9       db "here 9", 0
-
-    here10      db "here 10", 0
-
-    here11      db "here 11", 0
-
-    here12      db "here 12", 0
-
-    here13      db "here 13", 0
-
-    here14      db "here 14", 0
-
-    here15      db "here 15", 0
-
 .UDATA
     answer      resb 1
     names       resb 80
@@ -68,16 +40,12 @@
     global play_game
 
 play_game:
-    PutStr here1
+
     nwln
     mov [amt_players], AX   ; AX must have the amount of players for the call
     call wipe_file  ; wipes the seenAnswer txt, note that AX is gone now!
     mov ECX, 0 ; ECX is going to be our turn counter
     mov EDX, 0 ; EDX is the index for player, stays at 0 for single
-    cmp word [amt_players], 1   ; check to redirect to which mode
-    jg multiplayer ; redirect in case there is more than 1 player
-
-multiplayer:
 
 ask_player_name:
 
@@ -95,32 +63,26 @@ ask_player_name:
 
 turns_start:
 
-    PutStr here8
-
-    nwln
-
     mov EBX, 0 ; this is the counter for turns
 
 turn_loop:
+
     cmp EBX, 10
     jge show_scores
     inc EBX
     mov EDX, 0 ; back to player 0
 
-;Al completarse la partida de 10 preguntas el juego terminará, mostrando
-;los puntos obtenidos y el ranking (si hay múltiples jugadores). Un jugador
-;podrá terminar cuando lo desee, en ese momento se brindarán los puntos
-;acumulados y el ranking (si hay múltiples jugadores).
-
 play_loop:
-    
-    call get_question   ; now the correct answer is in AH
+
+    call get_question   ; now the correct answer is in EAX
+    mov [answer], AL
     PutStr ask_answer
     GetCh AL
-    mov [answer], AL
     nwln
-    cmp AH, byte [answer]
+    cmp AL, byte [answer]
     je increase_score
+    cmp AL, '0'
+    je show_scores
     ; else the answer is incorrect
 
 incorrect:
@@ -141,6 +103,8 @@ increase_score:
     ; for this, is better to use the score_table, if not, we would need
     ; a lot of comparisons
     ; index * 2 will get us the byte number
+    PutStr correct_msg
+    nwln
     dec EBX ; adjust for index
     mov AX, [score_table + EBX * 2] ; indirect based index addressing
     inc EBX ; restore EBX
@@ -150,11 +114,16 @@ increase_score:
     jmp play_loop
 
 show_scores:
+
     PutStr end_game
     nwln
     mov ECX, 0 ; player counter
     
 show_scores_loop:
+;Al completarse la partida de 10 preguntas el juego terminará, mostrando
+;los puntos obtenidos y el ranking (si hay múltiples jugadores). Un jugador
+;podrá terminar cuando lo desee, en ese momento se brindarán los puntos
+;acumulados y el ranking (si hay múltiples jugadores).
     cmp ECX, [amt_players]
     jge done
     
