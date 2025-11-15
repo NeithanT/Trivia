@@ -27,6 +27,8 @@
 
     extern read_question
     extern get_rand
+    extern append_amt
+    extern append_comma
 
     global get_question
     global get_amt_questions
@@ -154,6 +156,9 @@
         
     done:
 
+        mov EAX, [current_quest]
+        call append_amt
+        call append_comma
         mov EAX, [current_quest]
         call read_question
         ret

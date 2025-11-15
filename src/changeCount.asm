@@ -14,7 +14,9 @@
 
     file_descriptor dd 0
     file_name       db "src/saves/questions.txt", 0
+    file_append     db "src/saves/seenQuestions.txt", 0
     len             dd 0
+    comma           db ','
 
 .UDATA
 
@@ -26,6 +28,57 @@
     extern get_amt_questions
 
     global change_count
+    global append_amt
+    global append_comma
+
+    append_amt:
+
+        push EAX
+        ; time to append it to seenQuestions.txt
+        mov EAX, 5      ; open mode
+        mov EBX, file_append
+
+        ; The writing is complicated. Apparently, write is with 1
+        ; and append has the identifier of 1024, you combine them
+        ; and you use the 1025 ...
+        mov ECX, 1025 ; append mode with write
+        mov EDX, 0
+
+        int 0x80
+
+        mov [file_descriptor], EAX
+
+        ; write the questions with a , 
+
+        jmp write_amt
+
+    append_comma:
+
+        ; time to append it to seenQuestions.txt
+        mov EAX, 5      ; open mode
+        mov EBX, file_append
+
+        ; The writing is complicated. Apparently, write is with 1
+        ; and append has the identifier of 1024, you combine them
+        ; and you use the 1025 ...
+        mov ECX, 1025 ; append mode with write
+        mov EDX, 0
+
+        int 0x80
+
+        mov EBX, EAX
+        mov EAX, 5
+        mov ECX, comma
+        mov EDX, 1
+
+        int 0x80
+
+        mov EAX, 6
+        int 0x80
+        ; close the file!
+        ; just writes a , 
+
+        ret
 
     change_count:
 

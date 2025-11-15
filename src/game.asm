@@ -14,9 +14,10 @@
     player_num  db 9, "Jugador #", 0
     ask_name    db 9, "Ingresa tu nombre: ", 0
     ask_answer  db 9, "Tu respuesta [0 para terminar]: ", 0
-    correct_ans db 9, "La respuesta correcta era:"
+    correct_ans db 9, "La respuesta correcta era:", 0
     correct_msg db 9, "Correcta!", 0
     wrong_msg   db 9, "Incorrecta!", 0
+    points_add  db 9, "Puntos ganados: ", 0
     score_msg   db 9, "Puntuacion: ", 0
     end_game    db 9, "Se termino el juego", 0
     amt_ques    dd 10
@@ -90,11 +91,13 @@ incorrect:
     PutStr wrong_msg
     nwln
     PutStr correct_ans
-    PutCh AH 
+    PutCh [answer] 
     nwln
     inc EDX
     cmp EDX, [amt_players]
     jge turn_loop
+
+    jmp play_loop
 
 increase_score:
 
@@ -109,8 +112,14 @@ increase_score:
     mov AX, [score_table + EBX * 2] ; indirect based index addressing
     inc EBX ; restore EBX
 
+    PutStr points_add
+    PutInt AX
+    nwln
     add word [scores + EDX * 2], AX ; add score
     inc EDX
+    cmp EDX, [amt_players]
+    jge turn_loop
+    
     jmp play_loop
 
 show_scores:
@@ -118,12 +127,16 @@ show_scores:
     PutStr end_game
     nwln
     mov ECX, 0 ; player counter
-    
+
+single_score:
+
+    jmp done
+
+rank_score:
+
 show_scores_loop:
 ;Al completarse la partida de 10 preguntas el juego terminará, mostrando
-;los puntos obtenidos y el ranking (si hay múltiples jugadores). Un jugador
-;podrá terminar cuando lo desee, en ese momento se brindarán los puntos
-;acumulados y el ranking (si hay múltiples jugadores).
+;los puntos obtenidos y el ranking (si hay múltiples jugadores)
     cmp ECX, [amt_players]
     jge done
     
