@@ -41,6 +41,7 @@
     global play_game
 
 play_game:
+
     nwln ; Print blank line
     mov [amt_players], AX ; Store the number of players from AX parameter
     call wipe_file ; Clear the seenQuestions.txt file to reset seen questions
@@ -55,6 +56,7 @@ play_game:
     mov EDX, 0 ; Initialize player counter to 0
 
 ask_player_name:
+
     inc EDX ; Increment player counter (1-based display)
     PutStr player_num ; Display "Jugador #"
     PutLInt EDX ; Display current player number
@@ -68,14 +70,17 @@ ask_player_name:
     jmp ask_player_name ; Continue asking for next player's name
 
 turns_start:
+
     mov EBX, 0 ; Initialize turn counter to 0 (questions asked so far)
 
 turn_loop:
+
     cmp EBX, [amt_ques] ; Check if we've asked all 10 questions
     jge show_scores ; If yes, show final leaderboard
     mov EDX, 0 ; Reset player counter to 0 (start with player 1)
 
 play_loop:
+
     push EDX ; Save current player index
     push EBX ; Save current question index
 
@@ -110,14 +115,15 @@ play_loop:
     sub AL, 32 ; Convert lowercase to uppercase (ASCII difference is 32)
     
 check_quit:
+
     cmp AL, '0' ; Check if user entered '0' (quit game early)
     je show_scores ; If yes, jump to show final scores
     
     cmp AL, byte [answer] ; Compare user answer with correct answer
     je increase_score ; If equal, process correct answer
 
-; If we reach here, the answer is incorrect
 incorrect:
+
     PutStr wrong_msg ; Display "Incorrecta!"
     nwln ; Print newline
     PutStr correct_ans ; Display "La respuesta correcta era:"
@@ -129,6 +135,7 @@ incorrect:
     jmp play_loop ; If no, ask next player
 
 increase_score:
+
     PutStr correct_msg ; Display "Correcta!"
     nwln ; Print newline
     
@@ -148,10 +155,12 @@ increase_score:
     jmp play_loop ; If no, ask next player
 
 next_turn:
+
     inc EBX ; Increment to next question
     jmp turn_loop ; Continue game loop
 
 show_scores:
+
     nwln ; Print blank line
     PutStr end_game ; Display "Se termino el juego"
     nwln ; Print newline
@@ -159,6 +168,7 @@ show_scores:
     nwln ; Print newline
 
 loop_scores:
+
     mov EBX, 0 ; Initialize count of scores already displayed
     
 find_next_max:
@@ -167,6 +177,7 @@ find_next_max:
     mov ECX, 0 ; Initialize player counter to 0
     
 get_max_score:
+
     cmp ECX, [amt_players] ; Check if we've checked all players
     jge show_current_max ; If yes, display the highest score found
     
@@ -182,6 +193,7 @@ get_max_score:
     jmp skip_to_next_player ; Continue to next player
 
 compare_with_current_max:
+
     cmp SI, AX ; Compare new score (SI) with current max score (AX) using signed comparison
     jle skip_to_next_player ; If SI <= AX, skip this player
 
@@ -189,10 +201,12 @@ compare_with_current_max:
     mov EDX, ECX ; Save index of this player as new max
     
 skip_to_next_player:
+
     inc ECX ; Move to next player
     jmp get_max_score ; Continue checking scores
 
 show_current_max:
+
     cmp EDX, -1 ; Check if we found any unshown player (EDX will be -1 if all shown)
     je done ; If all shown, we're done displaying leaderboard
     
@@ -230,4 +244,5 @@ show_current_max:
     jmp find_next_max ; If no, find and display next highest score
 
 done:
+
     ret ; Return from function
