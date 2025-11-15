@@ -41,214 +41,184 @@
     global play_game
 
 play_game:
-
-    nwln
-    mov [amt_players], AX   ; AX must have the amount of players for the call
-    call wipe_file  ; wipes the seenAnswer txt
+    nwln ; Print blank line
+    mov [amt_players], AX ; Store the number of players from AX parameter
+    call wipe_file ; Clear the seenQuestions.txt file to reset seen questions
     
-    ; Initialize scores to 0 for this game
-    mov word [scores], 0
-    mov word [scores + 2], 0
-    mov word [scores + 4], 0
-    mov word [scores + 6], 0
+    mov word [scores], 0 ; Initialize player 1 score to 0
+    mov word [scores + 2], 0 ; Initialize player 2 score to 0
+    mov word [scores + 4], 0 ; Initialize player 3 score to 0
+    mov word [scores + 6], 0 ; Initialize player 4 score to 0
     
-    ; Initialize name buffer pointer
-    mov EBX, names
-    mov EDX, 0 ; EDX is the player counter
+    mov EBX, names ; Point to start of names buffer
+    mov EDX, 0 ; Initialize player counter to 0
 
 ask_player_name:
-
-    inc EDX
-    PutStr player_num
-    PutLInt EDX
-    PutStr ask_name
-    GetStr EBX, 19
-    nwln
+    inc EDX ; Increment player counter (1-based display)
+    PutStr player_num ; Display "Jugador #"
+    PutLInt EDX ; Display current player number
+    PutStr ask_name ; Prompt for player name
+    GetStr EBX, 19 ; Read player name (max 19 bytes + null terminator = 20)
+    nwln ; Print newline
     
-    cmp EDX, [amt_players]
-    jge turns_start
-    add EBX, 20 ; go to the next name
-    jmp ask_player_name
+    cmp EDX, [amt_players] ; Check if we've asked all players for their names
+    jge turns_start ; If yes, begin game turns
+    add EBX, 20 ; Move to next name buffer position (each name slot is 20 bytes)
+    jmp ask_player_name ; Continue asking for next player's name
 
 turns_start:
-
-    mov EBX, 0 ; this is the counter for turns (0-based)
+    mov EBX, 0 ; Initialize turn counter to 0 (questions asked so far)
 
 turn_loop:
-
-    cmp EBX, [amt_ques]
-    jge show_scores
-    mov EDX, 0 ; back to player 0
+    cmp EBX, [amt_ques] ; Check if we've asked all 10 questions
+    jge show_scores ; If yes, show final leaderboard
+    mov EDX, 0 ; Reset player counter to 0 (start with player 1)
 
 play_loop:
-    ; Display current player info
-    push EDX
-    push EBX
+    push EDX ; Save current player index
+    push EBX ; Save current question index
 
-    nwln
-    PutStr player_num
-    inc EDX
-    PutLInt EDX
-    nwln
-    dec EDX
+    nwln ; Print blank line
+    PutStr player_num ; Display "Jugador #"
+    inc EDX ; Increment to 1-based for display
+    PutLInt EDX ; Display player number
+    nwln ; Print newline
+    dec EDX ; Decrement back to 0-based index
 
-    pop EBX
-    pop EDX
+    pop EBX ; Restore question index
+    pop EDX ; Restore player index
     
-    push EDX
-    push EBX
+    push EDX ; Save player index again
+    push EBX ; Save question index again
 
-    call get_question   ; now the correct answer is in EAX
-    mov [answer], AL
+    call get_question ; Get next question and correct answer into EAX
+    mov [answer], AL ; Store the correct answer character
 
-    pop EBX
-    pop EDX
+    pop EBX ; Restore question index
+    pop EDX ; Restore player index
     
-    PutStr ask_answer
-    GetCh AL
-    nwln
+    PutStr ask_answer ; Prompt user for their answer
+    GetCh AL ; Read one character (A, B, C, D, or 0) into AL
+    nwln ; Print newline
     
-    cmp AL, '0'
-    je show_scores
+    cmp AL, '0' ; Check if user entered '0' (quit game early)
+    je show_scores ; If yes, jump to show final scores
     
-    cmp AL, byte [answer]
-    je increase_score
+    cmp AL, byte [answer] ; Compare user answer with correct answer
+    je increase_score ; If equal, process correct answer
 
-; else the answer is incorrect
+; If we reach here, the answer is incorrect
 incorrect:
-
-    PutStr wrong_msg
-    nwln
-    PutStr correct_ans
-    PutCh [answer]
-    nwln
-    inc EDX
-    cmp EDX, [amt_players]
-    jge next_turn
-    jmp play_loop
+    PutStr wrong_msg ; Display "Incorrecta!"
+    nwln ; Print newline
+    PutStr correct_ans ; Display "La respuesta correcta era:"
+    PutCh [answer] ; Display the correct answer
+    nwln ; Print newline
+    inc EDX ; Move to next player
+    cmp EDX, [amt_players] ; Check if all players answered this question
+    jge next_turn ; If yes, move to next question
+    jmp play_loop ; If no, ask next player
 
 increase_score:
-
-    PutStr correct_msg
-    nwln
+    PutStr correct_msg ; Display "Correcta!"
+    nwln ; Print newline
     
-    ; Get points from score_table (EBX is 0-based turn index)
-    push EDX
-    mov AX, [score_table + EBX * 2]
-    PutStr points_add
-    PutInt AX
-    nwln
-    pop EDX
+    push EDX ; Save player index
+    mov AX, [score_table + EBX * 2] ; Get points for current question (EBX is question index)
+    PutStr points_add ; Display "Puntos ganados:"
+    PutInt AX ; Display the points earned
+    nwln ; Print newline
+    pop EDX ; Restore player index
     
-    ; Add score to current player
-    ; EDX is now guaranteed to be correct because we saved/restored it
-    add AX, word [scores + EDX * 2]
-    mov [scores + EDX * 2], AX
+    add AX, word [scores + EDX * 2] ; Add earned points to current player's score
+    mov [scores + EDX * 2], AX ; Store updated score
     
-    inc EDX
-    cmp EDX, [amt_players]
-    jge next_turn
-    jmp play_loop
+    inc EDX ; Move to next player
+    cmp EDX, [amt_players] ; Check if all players answered this question
+    jge next_turn ; If yes, move to next question
+    jmp play_loop ; If no, ask next player
 
 next_turn:
-
-    inc EBX
-    jmp turn_loop
+    inc EBX ; Increment to next question
+    jmp turn_loop ; Continue game loop
 
 show_scores:
-
-    nwln
-    PutStr end_game
-    nwln
-    PutStr leaderboard
-    nwln
+    nwln ; Print blank line
+    PutStr end_game ; Display "Se termino el juego"
+    nwln ; Print newline
+    PutStr leaderboard ; Display "====Puntuaciones===="
+    nwln ; Print newline
 
 loop_scores:
-
-    mov EBX, 0 ; player count shown so far
+    mov EBX, 0 ; Initialize count of scores already displayed
     
 find_next_max:
-
-    mov AX, -1   ; AX = -1: marker for "no score found yet" or "already shown"
-    mov EDX, -1  ; EDX = -1: no player found yet
-    mov ECX, 0   ; player counter for the loop
+    mov AX, -1 ; Initialize AX to -1 (marker for "no unshown score found")
+    mov EDX, -1 ; Initialize EDX to -1 (no player found yet)
+    mov ECX, 0 ; Initialize player counter to 0
     
 get_max_score:
-
-    cmp ECX, [amt_players]
-    jge show_current_max
+    cmp ECX, [amt_players] ; Check if we've checked all players
+    jge show_current_max ; If yes, display the highest score found
     
-    mov SI, [scores + ECX * 2]
+    mov SI, [scores + ECX * 2] ; Load current player's score
     
-    ; Skip scores that are -1 (already shown)
-    cmp SI, -1
-    je skip_to_next_player
+    cmp SI, -1 ; Check if score is marked as already shown (-1)
+    je skip_to_next_player ; If yes, skip this player
     
-    ; If we haven't found any player yet (EDX == -1), take this one
-    cmp EDX, -1
-    jne compare_with_current_max
-    
-    mov AX, SI
-    mov EDX, ECX
-    jmp skip_to_next_player
+    cmp EDX, -1 ; Check if we've found a player yet (EDX == -1 means no)
+    jne compare_with_current_max ; If EDX != -1, compare scores
+    mov AX, SI ; Take this player's score as the current maximum
+    mov EDX, ECX ; Save this player's index
+    jmp skip_to_next_player ; Continue to next player
 
 compare_with_current_max:
-    ; Compare SI (new score) with AX (current max score)
-    ; Using SIGNED comparison: if SI <= AX, skip it
-    cmp SI, AX
-    jle skip_to_next_player
+    cmp SI, AX ; Compare new score (SI) with current max score (AX) using signed comparison
+    jle skip_to_next_player ; If SI <= AX, skip this player
 
-    ; New max found (SI > AX)
-    mov AX, SI
-    mov EDX, ECX  ; Save index of new max player
+    mov AX, SI ; New max found, update AX with this score
+    mov EDX, ECX ; Save index of this player as new max
     
 skip_to_next_player:
-
-    inc ECX
-    jmp get_max_score
+    inc ECX ; Move to next player
+    jmp get_max_score ; Continue checking scores
 
 show_current_max:
-    ; Check if we found a player (EDX will be -1 if all are shown)
-    cmp EDX, -1
-    je done
+    cmp EDX, -1 ; Check if we found any unshown player (EDX will be -1 if all shown)
+    je done ; If all shown, we're done displaying leaderboard
     
-    ; Show this player's score
-    inc EBX
-    PutStr player_num
-    mov ECX, EBX
-    PutLInt ECX
-    PutCh ' '
+    inc EBX ; Increment count of displayed scores
+    PutStr player_num ; Display "Jugador #"
+    mov ECX, EBX ; Load display rank into ECX
+    PutLInt ECX ; Display rank number
+    PutCh ' ' ; Display space
     
-    ; Calculate name address: names + (EDX * 20)
-    ; Use ECX as temporary to avoid losing our values
-    push EAX
-    push EBX
-    push EDX
+    push EAX ; Save the score on stack
+    push EBX ; Save display rank on stack
+    push EDX ; Save player index on stack
 
-    mov ECX, EDX
-    mov EAX, 20
-    imul ECX, EAX   ; ECX = EDX * 20
-    lea EBX, [names + ECX]  ; EBX = names + offset
+    mov ECX, EDX ; Copy player index to ECX
+    mov EAX, 20 ; Load offset per player (20 bytes per name)
+    imul ECX, EAX ; Multiply player index by 20 to get buffer offset
+    lea EBX, [names + ECX] ; Calculate address of this player's name
 
-    PutStr EBX
+    PutStr EBX ; Display player name
 
-    pop EDX
-    pop EBX
-    pop EAX
-    nwln
+    pop EDX ; Restore player index
+    pop EBX ; Restore display rank
+    pop EAX ; Restore the score
+    nwln ; Print newline
     
-    PutStr score_msg
-    PutInt AX ; Print the score (AX is low 16 bits of EAX)
-    nwln
-    nwln
+    PutStr score_msg ; Display "Puntuacion:"
+    PutInt AX ; Display the score value
+    nwln ; Print newline
+    nwln ; Print another newline for spacing
     
-    ; Mark this score as shown by setting it to -1
-    mov word [scores + EDX * 2], -1
+    mov word [scores + EDX * 2], -1 ; Mark this score as shown by setting to -1
     
-    cmp EBX, [amt_players]
-    jge done
-    jmp find_next_max
+    cmp EBX, [amt_players] ; Check if we've displayed all players
+    jge done ; If yes, we're finished
+    jmp find_next_max ; If no, find and display next highest score
 
 done:
-
-    ret
+    ret ; Return from function

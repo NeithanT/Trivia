@@ -21,58 +21,55 @@
     global show_quest
 
     show_quest:
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_name ; Point to questions.txt filename
+        mov ECX, 0 ; Set flags to 0 for read-only access
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open the file
 
-        mov EAX, 5          ; open mode
-        mov EBX, file_name  ; pass the file/direction
-        mov ECX, 0          ; no modes
-        mov EDX, 0          ; read only
-        int 0x80
+        mov [file_descriptor], AL ; Store low byte of file descriptor
 
-        mov [file_descriptor], AL
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov EBX, [file_descriptor] ; Get the file descriptor
+        mov ECX, buffer ; Point to the buffer for file contents
+        mov EDX, 10000 ; Read up to 10000 bytes from file
+        int 0x80 ; Execute syscall to read entire file into buffer
+        
+        mov [buffer + EAX], BYTE 0 ; Null-terminate the buffer at position EAX (bytes read)
 
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]  ; the fd
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 10000    ; amount of bytes
-        int 0x80
-        ; EAX now has the number of bytes read
-        mov [buffer + EAX], BYTE 0 ; Null-terminate the buffer
-
-        mov ESI, buffer
+        mov ESI, buffer ; Point to start of buffer
 
     find_question:
-        cmp BYTE [ESI], 0   ; End of buffer
-        je done
+        cmp BYTE [ESI], 0 ; Check if we reached end of buffer (null terminator)
+        je done ; If at end, display is complete
 
-        cmp BYTE [ESI], ':'
-        je find_end
-        inc ESI
-        jmp find_question
+        cmp BYTE [ESI], ':' ; Check if current character is ':' (question delimiter)
+        je find_end ; If ':' found, we found a question to display
+        inc ESI ; Move to next character
+        jmp find_question ; Continue searching
 
     find_end:
-        inc ESI ; skip ':', now at the answer
-        inc ESI ; skip answer, now at the endline
-        inc ESI ; skip endline, now at the start of the question '['
-        mov EDI, ESI
-        jmp find_end_loop
+        inc ESI ; Move past ':', now at the correct answer character
+        inc ESI ; Move past answer, now at newline character
+        inc ESI ; Move past newline, now at the start of question '['
+        mov EDI, ESI ; Copy pointer to EDI for finding the end of question
+        jmp find_end_loop ; Begin searching for end marker
 
     find_end_loop:
-        inc EDI
-        cmp BYTE [EDI], ']'
-        je print
-        cmp BYTE [EDI], 0
-        je done ; End of buffer, something is wrong with the format but we exit
-        jmp find_end_loop
+        inc EDI ; Move to next character
+        cmp BYTE [EDI], ']' ; Check if current character is ']' (question end marker)
+        je print ; If found, we've reached the end of this question
+        cmp BYTE [EDI], 0 ; Check if we reached end of buffer (null terminator)
+        je done ; If at end, something is wrong with format but exit
+        jmp find_end_loop ; Continue searching for end marker
 
     print:
-        mov [EDI], BYTE 0
-        PutStr ESI
-        mov [EDI], BYTE ']'
-        mov ESI, EDI
-        inc ESI ; Move past ']'
-        jmp find_question
-
+        mov [EDI], BYTE 0 ; Replace ']' with null terminator to end string
+        PutStr ESI ; Display the question text
+        mov [EDI], BYTE ']' ; Restore the ']' character back to original
+        mov ESI, EDI ; Move to the position of ']'
+        inc ESI ; Move past ']' to next character
+        jmp find_question ; Continue to find and display next question
 
     done:
-
-        ret
+        ret ; Return from function

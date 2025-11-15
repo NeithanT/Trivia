@@ -18,16 +18,9 @@
     global wipe_file
 
     wipe_file:
-        ; syscall to open file
-        ;                   eax     ebx                     ecx         edx
-        ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
-
-        mov EAX, 5      ; open mode
-        mov EBX, file_name
-
-        ; opening the file in truncate mode, it wipes the file
-        mov ECX, 512 ; truncate mode / wipe
-        mov EDX, 0
-        int 0x80
-
-        ret
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_name ; Point to the filename string for seenQuestions.txt
+        mov ECX, 512 ; Set flags to 512 (O_TRUNC) to truncate/wipe the file
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open and truncate the file
+        ret ; Return from function

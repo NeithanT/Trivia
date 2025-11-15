@@ -51,299 +51,255 @@
     global add_question
 
 add_question:
+    mov EAX, 5 ; Load syscall number for open (0x05)
+    mov EBX, file_name ; Point to questions.txt filename
 
-    mov EAX, 5      ; open mode
-    mov EBX, file_name
+    mov ECX, 1025 ; Set flags to 1025 (write | append mode to add at end)
+    mov EDX, 0 ; No special file mode bits needed
+    int 0x80 ; Execute syscall to open file in append mode
 
-    ; The writing is complicated. Apparently, write is with 1
-    ; and append has the identifier of 1024, you combine them
-    ; and you use the 1025 ...
-    mov ECX, 1025 ; append mode with write
-    mov EDX, 0
+    mov [file_descriptor], EAX ; Store the returned file descriptor
 
-    int 0x80
-
-    mov [file_descriptor], EAX ; move the file descriptor
-
-    ; The objective is to ask for a question
-    ; save it at the end
-    ; and update the number of questions at the start of the file
-
-    PutStr ask_type
-    nwln
-    jmp put_options
+    PutStr ask_type ; Prompt user for question type
+    nwln ; Print newline
+    jmp put_options ; Jump to display question type options
 
 invalid:
-
-    PutStr invalid_opt
-    nwln
+    PutStr invalid_opt ; Display error message for invalid option
+    nwln ; Print newline
 
 put_options: 
+    PutStr multi ; Display option 1: Multiple Choice
+    nwln ; Print newline
+    PutStr true_false ; Display option 2: True/False
+    nwln ; Print newline
 
-    PutStr multi
-    nwln
-    PutStr true_false
-    nwln
+    PutStr option ; Prompt user to enter their choice
+    GetInt AX ; Read integer choice from user into AX
 
-    PutStr option
-    GetInt AX 
+    cmp AX, 1 ; Check if choice is 1 (multiple choice)
+    je multiple_option ; If yes, go to multiple choice handler
+    cmp AX, 2 ; Check if choice is 2 (true/false)
+    je true_false_label ; If yes, go to true/false handler
 
-    cmp AX, 1
-    je multiple_option
-    cmp AX, 2
-    je true_false_label
-
-    jmp invalid
+    jmp invalid ; If neither, display error and loop
 
 ask_quest:
-
-    PutStr ask_question
-    GetStr question, 100 ; constant buffer size of 100 bytes
-    ret
+    PutStr ask_question ; Prompt user to enter the question
+    GetStr question, 100 ; Read question string into buffer (max 100 bytes)
+    ret ; Return from function
     
 count_chars:
-
-    mov EAX, 0
+    mov EAX, 0 ; Initialize character counter to 0
 
 count_chars_loop:
-
-    cmp BYTE [ECX], 0
-    je count_done
-    inc ECX
-    inc EAX
-    jmp count_chars_loop
+    cmp BYTE [ECX], 0 ; Check if current byte is null terminator
+    je count_done ; If yes, we've counted all characters
+    inc ECX ; Move to next character
+    inc EAX ; Increment counter
+    jmp count_chars_loop ; Continue counting
 
 count_done:
-
-    ret
-
-    ; this is going to count the len of the string in ECX
+    ret ; Return with character count in EAX
 
 multiple_option:
-
-    call ask_quest
-    mov EBX, answer
-    mov CL, 'A'
+    call ask_quest ; Get the question from user
+    mov EBX, answer ; Point to answer buffer
+    mov CL, 'A' ; Initialize option letter to 'A'
 
 multiple_loop:
-
-    cmp CL, 'E' 
-    je ask_correct_label ; already asked all questions
-    PutStr ask_answer
-    PutCh CL
-    PutCh ':'
-    PutCh ' ' ; cheap way to put a space 
-    GetStr  EBX, 50
-    inc CL
-    add EBX, 50
-    jmp multiple_loop
+    cmp CL, 'E' ; Check if we've asked all 4 options (A, B, C, D)
+    je ask_correct_label ; If yes, ask for correct answer
+    PutStr ask_answer ; Display "Opcion #"
+    PutCh CL ; Display current option letter (A, B, C, or D)
+    PutCh ':' ; Display colon
+    PutCh ' ' ; Display space for readability
+    GetStr EBX, 50 ; Read option text into buffer (max 50 bytes)
+    inc CL ; Move to next letter (A->B, B->C, etc.)
+    add EBX, 50 ; Move buffer pointer to next option storage
+    jmp multiple_loop ; Continue asking for next option
 
 invalid_correct:
-
-    PutStr invalid_opt
-    nwln
+    PutStr invalid_opt ; Display error message
+    nwln ; Print newline
 
 ask_correct_label:
-    ; now, its time to ask for which of the inputted options
-    ; is the correct one
-    PutStr ask_correct
-    GetCh BL
-    cmp BL, 'A'
-    jl invalid_correct
-    cmp BL, 'D'
-    jg invalid_correct
+    PutStr ask_correct ; Prompt user to enter the correct answer letter
+    GetCh BL ; Read one character (A, B, C, or D) into BL
+    cmp BL, 'A' ; Check if answer is 'A' (minimum valid)
+    jl invalid_correct ; If less than 'A', invalid
+    cmp BL, 'D' ; Check if answer is 'D' (maximum valid)
+    jg invalid_correct ; If greater than 'D', invalid
 
 write_multiple:
+    mov [correct_ans], BL ; Store the correct answer letter in memory
 
-    ; time to write the Respuesta correcta:
-    mov [correct_ans], BL ; save the correct answer
+    call write_newline ; Write newline to file
 
-    call write_newline
+    mov ECX, correct_save ; Point to "Respuesta correcta:" string
+    call count_chars ; Get length of the string (result in EAX)
+    mov ECX, correct_save ; Point to string again
+    mov EDX, EAX ; Move character count to EDX for syscall
 
-    mov ECX, correct_save
-    call count_chars
-    mov ECX, correct_save
-    mov EDX, EAX
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write label
 
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    mov ECX, correct_ans ; Point to the correct answer letter
+    mov EDX, 1 ; Write exactly 1 byte (single letter)
+    int 0x80 ; Execute syscall to write answer
 
-    ; wrote the Respuesta correcta, now for the actual correct answer
-    
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    mov ECX, correct_ans
-    mov EDX, 1
-    int 0x80
+    call write_newline ; Write newline to file
 
-    call write_newline
+    mov [small_buff], BYTE 'A' ; Initialize buffer with 'A'
+    mov [small_buff + 1], BYTE ')' ; Add ')'
+    mov [small_buff + 2], BYTE ' ' ; Add space
+    mov [small_buff + 3], BYTE 0 ; Add null terminator
 
-    mov [small_buff], BYTE 'A' ; i need the registers
-    mov [small_buff + 1], BYTE ')'
-    mov [small_buff + 2], BYTE ' '
-    mov [small_buff + 3], BYTE 0
-
-    mov ECX, answer
+    mov ECX, answer ; Point to start of answers buffer
 
 write_multiple_loop:
+    cmp AL, 'E' ; Check if we've written all 4 options
+    je write_done ; If yes, finish writing
 
-    cmp AL, 'E'
-    je write_done
+    push ECX ; Save answers buffer pointer
 
-    push ECX
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    mov ECX, small_buff ; Point to "X) " prefix
+    mov EDX, 3 ; Write exactly 3 bytes
+    int 0x80 ; Execute syscall to write option prefix
 
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    mov ECX, small_buff
-    mov EDX, 3
-    int 0x80
+    pop ECX ; Restore answers buffer pointer
+    push ECX ; Save it again for next iteration
+    call count_chars ; Get length of current option answer (result in EAX)
+    mov EDX, EAX ; Move character count to EDX
 
-    pop ECX
-    push ECX
-    call count_chars
-    mov EDX, EAX
-    pop ECX
+    pop ECX ; Restore answers buffer pointer
 
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write answer text
 
-    push ECX
-    call write_newline
-    pop ECX
+    push ECX ; Save buffer pointer
+    call write_newline ; Write newline to file
+    pop ECX ; Restore buffer pointer
 
-    add ECX, 50 ; next answer
+    add ECX, 50 ; Move to next option (each option is 50 bytes)
 
-    mov AL, BYTE [small_buff]
-    inc AL
-    mov [small_buff], AL
+    mov AL, BYTE [small_buff] ; Get current letter from small_buff
+    inc AL ; Increment letter (A->B, B->C, etc.)
+    mov [small_buff], AL ; Store incremented letter
     
-    jmp write_multiple_loop
+    jmp write_multiple_loop ; Continue writing next option
     
 true_false_label:
-
-    call ask_quest  
-    PutStr ask_true_false
-    nwln
-    PutStr true
-    nwln
-    PutStr false
-    nwln
-    jmp ask_ans_true_false
+    call ask_quest ; Get the question from user
+    PutStr ask_true_false ; Prompt for true/false selection
+    nwln ; Print newline
+    PutStr true ; Display "A) Verdadero"
+    nwln ; Print newline
+    PutStr false ; Display "B) Falso"
+    nwln ; Print newline
+    jmp ask_ans_true_false ; Jump to get the correct answer
 
 not_valid_tf:
-
-    PutStr invalid
-    nwln
+    PutStr invalid ; Display error message (invalid reference)
+    nwln ; Print newline
 
 ask_ans_true_false:
+    PutStr ask_correct ; Prompt for correct answer
+    GetCh AL ; Read one character (A or B) into AL
+    cmp AL, 'A' ; Check if answer is 'A' (True)
+    je save_true_false ; If yes, proceed to save
+    cmp AL, 'B' ; Check if answer is 'B' (False)
+    je save_true_false ; If yes, proceed to save
 
-    PutStr ask_correct
-    GetCh AL
-    cmp AL, 'A'
-    je save_true_false
-    cmp AL, 'B'
-    je save_true_false
-
-    jmp not_valid_tf
+    jmp not_valid_tf ; If neither, display error
 
 save_true_false:
+    mov [correct_ans], AL ; Store the correct answer letter
 
-    mov [correct_ans], AL ; move the correct answer
-
-    call write_newline
+    call write_newline ; Write newline to file
  
-    mov ECX, correct_save
-    call count_chars
-    mov ECX, correct_save
-    mov EDX, EAX
+    mov ECX, correct_save ; Point to "Respuesta correcta:" string
+    call count_chars ; Get length of string (result in EAX)
+    mov ECX, correct_save ; Point to string again
+    mov EDX, EAX ; Move character count to EDX
 
-    ; write syscall
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write label
 
-    ; Now the respueta correcta is in the text file, time to copy
-    ; the actual correct response
-    mov EAX, 4
-    mov ECX, correct_ans
-    mov EDX, 1 ; only write the correct answer plus the newline!
-    int 0x80
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    mov ECX, correct_ans ; Point to the correct answer letter
+    mov EDX, 1 ; Write exactly 1 byte
+    int 0x80 ; Execute syscall to write answer
 
-    call write_newline
+    call write_newline ; Write newline to file
 
-    ; now is time to write the question and answer
+    mov ECX, question ; Point to the question text
+    call count_chars ; Get length of question (result in EAX)
+    mov ECX, question ; Point to question again
+    mov EDX, EAX ; Move character count to EDX
 
-    mov ECX, question
-    call count_chars
-    mov ECX, question ; the question pointer
-    mov EDX, EAX
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write question
 
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
+    call write_newline ; Write newline to file
 
-    call write_newline
+    mov ECX, true_save ; Point to "A) Verdadero" string
+    call count_chars ; Get length of string (result in EAX)
+    mov ECX, true_save ; Point to string again
+    mov EDX, EAX ; Move character count to EDX
 
-    ; now is time to write Verdadero, Falso and ]
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write true option
 
-    mov ECX, true_save
-    call count_chars
-    mov ECX, true_save
-    mov EDX, EAX
+    call write_newline ; Write newline to file
 
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
-    ; wrote true
+    mov ECX, false_save ; Point to "B) Falso" string
+    call count_chars ; Get length of string (result in EAX)
+    mov ECX, false_save ; Point to string again
+    mov EDX, EAX ; Move character count to EDX
 
-    call write_newline
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to write false option
 
-    ; now is time to write false
-
-    mov ECX, false_save
-    call count_chars
-    mov ECX, false_save
-    mov EDX, EAX
-
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    int 0x80
-    ; wrote false
-
-    call write_newline
-
+    call write_newline ; Write newline to file
 
 write_done:
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    mov ECX, close_question ; Point to ']' character (question end marker)
+    mov EDX, 1 ; Write exactly 1 byte
+    int 0x80 ; Execute syscall to write end marker
 
-    mov EAX, 4 ; write syscall
-    mov EBX, [file_descriptor]
-    mov ECX, close_question
-    mov EDX, 1
-    int 0x80
-
-    jmp close_file
+    jmp close_file ; Jump to close file
 
 write_newline:
-
-    mov EAX, 4
-    mov EBX, [file_descriptor]
-    mov ECX, newline
-    mov EDX, 1
-    int 0x80
-    ret
+    mov EAX, 4 ; Load syscall number for write (0x04)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    mov ECX, newline ; Point to newline character (ASCII 10)
+    mov EDX, 1 ; Write exactly 1 byte
+    int 0x80 ; Execute syscall to write newline
+    ret ; Return from function
 
 close_file:
-    mov EAX, 6          ; sys_close
-    mov EBX, [file_descriptor]
-    int 0x80
+    mov EAX, 6 ; Load syscall number for close (0x06)
+    mov EBX, [file_descriptor] ; Get the file descriptor
+    int 0x80 ; Execute syscall to close the file
 
 done:
-    
-    call change_count
+    call change_count ; Update the question count in questions.txt
 
-    nwln
-    PutStr added
-    nwln
-    ret
+    nwln ; Print newline
+    PutStr added ; Display success message
+    nwln ; Print newline
+    ret ; Return from function

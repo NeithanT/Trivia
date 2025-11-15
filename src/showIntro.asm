@@ -23,30 +23,19 @@
     global show_intro
 
     show_intro:
-
-        ; Syscall to open File, in the linux documentation the entries are:
-        ;                   eax     ebx                     ecx         edx
-        ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
-
-        mov EAX, 5      ; Identifier for eax
-        mov EBX, file_name  ; the filename
-        mov ECX, 0  ; 0 for read
-        mov EDX, 0  ; no extra modes
-        int 0x80    ; syscall with the 0x80 interrupt for linux
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_name ; Point to the filename string for intro.txt
+        mov ECX, 0 ; Set flags to 0 for read-only access
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open the file
         
-        ; Syscall to read from File, in the linux documentation the entries are:
-        ;                   eax     ebx                     ecx         edx
-        ;read	man/ cs/	0x03    unsigned int fd	        char *buf	size_t count
+        mov EBX, EAX ; Move the returned file descriptor from EAX to EBX
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov ECX, buffer ; Point to the buffer where file contents will be read
+        mov EDX, [file_size] ; Load the maximum bytes to read (1200 bytes)
+        int 0x80 ; Execute syscall to read entire intro file into buffer
 
-        ; Syscalls return to EAX for some strange reason
-        ; So the File Descriptor is now in EAX
-        mov EBX, EAX    ; move the file descriptor to EBX
-        mov EAX, 3      ; read syscall
-        mov ECX, buffer ; pointer to the buffer
-        mov EDX, [file_size]   ; read everything pretty much
-        int 0x80
-
-        PutStr buffer   ; print the intro
+        PutStr buffer ; Display the intro text from buffer to user
 
     done:
 

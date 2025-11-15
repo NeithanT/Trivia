@@ -32,136 +32,114 @@
 
     global get_question
     global get_amt_questions
-    ; The purpose is to print a question
-    ; and return the correct answer in EAX
-    ; it needs the checks to verify the questions has not been seen before
-    ; AAAAAND ... when that happens call read_question
     
     get_amt_questions:
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_name ; Point to questions.txt filename
+        mov ECX, 0 ; Set flags to 0 for read-only access
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open the file
 
-        mov EAX, 5      ; open mode
-        mov EBX, file_name  ; pass the file/direction
-        mov ECX, 0 ; read only
-        mov EDX, 0 ; no special modes
-        int 0x80
+        mov EBX, EAX ; Move the returned file descriptor from EAX to EBX
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov ECX, buffer ; Point to the buffer for file contents
+        mov EDX, 100 ; Read only first 100 bytes (enough for question count)
+        int 0x80 ; Execute syscall to read from file
 
-        mov EBX, EAX    ; the file descriptor returns in EAX
-
-        mov EAX, 3          ; sys_read
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 100    ; amount of bytes
-        int 0x80   
-
-        mov ESI, buffer  ; the index for chars
-        mov EAX, 0
+        mov ESI, buffer ; Point to start of buffer
+        mov EAX, 0 ; Initialize EAX as accumulator for the number
 
     read_loop:
-
-        ; look for a : that's where the amount of questions are
-
-        cmp BYTE [ESI], ':'
-        je read_amt
-        inc ESI
-        jmp read_loop
+        cmp BYTE [ESI], ':' ; Look for ':' delimiter that marks question count
+        je read_amt ; If found, start parsing the number
+        inc ESI ; Move to next character
+        jmp read_loop ; Continue searching
 
     read_amt:
-
-        inc ESI ; get the first num
-        cmp BYTE [ESI], '0'
-        jl end_num
-        cmp BYTE [ESI], '9'
-        jg end_num
-        mov ECX, 10
-        mul CX
-        add AL, BYTE [ESI] ; the number now is in EAX
-        sub EAX, '0'
-        jmp read_amt
+        inc ESI ; Move past the ':' to the first digit
+        cmp BYTE [ESI], '0' ; Check if current byte is less than '0'
+        jl end_num ; If so, we've finished reading the number
+        cmp BYTE [ESI], '9' ; Check if current byte is greater than '9'
+        jg end_num ; If so, we've finished reading the number
+        mov ECX, 10 ; Load 10 for multiplication
+        mul CX ; Multiply EAX by 10 (shift digits left)
+        add AL, BYTE [ESI] ; Add the ASCII character to AL
+        sub EAX, '0' ; Convert ASCII digit to numeric value by subtracting '0'
+        jmp read_amt ; Continue reading next digit
 
     end_num:
-        push EAX
-        mov EAX, 6          ; sys_close
-        int 0x80
-        pop EAX
-        ret
+        push EAX ; Save the question count on stack
+        mov EAX, 6 ; Load syscall number for close (0x06)
+        int 0x80 ; Execute syscall to close the file
+        pop EAX ; Restore the question count to EAX
+        ret ; Return from function with question count in EAX
 
     get_question:
-        pusha
-        call get_amt_questions ; the amt of questions should NOW be in EAX
-        mov [amt_questions], EAX
+        pusha ; Save all general-purpose registers on stack
+        call get_amt_questions ; Get total question count (result in EAX)
+        mov [amt_questions], EAX ; Store the question count in memory
 
-        jmp open_file
+        jmp open_file ; Jump to open the seenQuestions.txt file
 
     try_again:
-
-        mov EAX, 6          ; sys_close
-        int 0x80 
-        ; close the file for no errors and try again from zero!
+        mov EAX, 6 ; Load syscall number for close (0x06)
+        int 0x80 ; Execute syscall to close the file
 
     open_file:
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_answers ; Point to seenQuestions.txt filename
+        mov ECX, 0 ; Set flags to 0 for read-only access
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open the file
 
-        mov EAX, 5      ; open mode
-        mov EBX, file_answers  ; pass the file/direction
-        mov ECX, 0 ; read only
-        mov EDX, 0 ; no special modes
-        int 0x80
-
-        mov [file_descriptor], EAX ; move the file descriptor
+        mov [file_descriptor], EAX ; Store the returned file descriptor
 
     read:
-
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 1000    ; amount of bytes
-        int 0x80
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov EBX, [file_descriptor] ; Get the file descriptor
+        mov ECX, buffer ; Point to the buffer for file contents
+        mov EDX, 1000 ; Read up to 1000 bytes from file
+        int 0x80 ; Execute syscall to read from file
 
     get_rand_loop:
-
-        mov EAX, [amt_questions]
-        call get_rand   ; get's a random number in EAX, in range from 0 to EAX -1, cool!
-        ; time to check if that questions has already appeared
-        mov [current_quest], EAX ; save the question
+        mov EAX, [amt_questions] ; Load the question count
+        call get_rand ; Generate random number from 0 to count-1 (result in EAX)
+        mov [current_quest], EAX ; Store the randomly selected question number
         
-        mov ESI, buffer
-        mov EAX, 0
+        mov ESI, buffer ; Point to start of buffer (list of seen questions)
+        mov EAX, 0 ; Initialize EAX as accumulator for parsing numbers
 
-        jmp check_if_question
+        jmp check_if_question ; Begin checking if this question was already shown
 
     next_num:
-
-        mov EAX, 0
-        inc ESI
+        mov EAX, 0 ; Reset number accumulator for next number
+        inc ESI ; Move to next character in buffer
 
     check_if_question:
+        cmp BYTE [ESI], 0 ; Check if we reached end of buffer (null terminator)
+        je done ; If at end, the question hasn't been seen yet
+        cmp BYTE [ESI], ',' ; Check if current character is a comma delimiter
+        je analyze ; If comma found, compare the parsed number with selected question
 
-        cmp BYTE [ESI], 0    ; check if the buffer ended
-        je done
-        cmp BYTE [ESI], ','
-        je analyze
-
-        imul EAX, 10 ; account for the index
-        ; We have to read the number at ESI, The numbers are separated by a comma, so
-        
-        add AL, BYTE [ESI]  ; account for the index
-        sub EAX, '0'
-        inc ESI
-        jmp check_if_question
+        imul EAX, 10 ; Multiply accumulator by 10 to shift digits left
+        add AL, BYTE [ESI] ; Add current ASCII character to AL
+        sub EAX, '0' ; Convert ASCII digit to numeric value
+        inc ESI ; Move to next character
+        jmp check_if_question ; Continue parsing next digit
 
     analyze:
+        cmp EAX, [current_quest] ; Compare parsed number with the randomly selected question
+        je get_rand_loop ; If equal, question already seen, get another random number
 
-        cmp EAX, [current_quest]
-        je get_rand_loop
-
-        jmp next_num ; go to check the next in seenQuestions otherwise
+        jmp next_num ; Move to next comma-separated number in the list
         
     done:
+        mov EAX, [current_quest] ; Load the selected question number into EAX
+        call append_amt ; Append this question number to seenQuestions.txt
+        call append_comma ; Append a comma delimiter
+        popa ; Restore all saved general-purpose registers
 
-        mov EAX, [current_quest]
-        call append_amt
-        call append_comma
-        popa
-        
-        mov EAX, [current_quest]
-        call read_question
-        ret
+        mov EAX, [current_quest] ; Load the selected question number into EAX
+        call read_question ; Read and display the question from questions.txt
+        ret ; Return from function
 

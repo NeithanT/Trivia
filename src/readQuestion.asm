@@ -24,111 +24,88 @@
     global read_question
 
     read_question:
-
-        mov [question_num], EAX ; the wanted question to print
+        mov [question_num], EAX ; Store the requested question number
 
     open_file:
-    
-        ; syscall to open a file
-        ;                   eax     ebx                     ecx         edx
-        ;open	man/ cs/	0x05	const char *filename	int flags	umode_t mode
-        mov EAX, 5      ; open mode
-        mov EBX, file_name  ; pass the file/direction
-        mov ECX, 0 ; read only
-        mov EDX, 0 ; no special modes
-        int 0x80
+        mov EAX, 5 ; Load syscall number for open (0x05)
+        mov EBX, file_name ; Point to questions.txt filename
+        mov ECX, 0 ; Set flags to 0 for read-only access
+        mov EDX, 0 ; No special file mode bits needed
+        int 0x80 ; Execute syscall to open the file
 
-        mov [file_descriptor], EAX  ;move the id of the file
-
-        ; Syscall to read from File, the entries are:
-        ;                   eax     ebx                     ecx         edx
-        ;read	man/ cs/	0x03    unsigned int fd	        char *buf	size_t count
-        ;read all the file basically
+        mov [file_descriptor], EAX ; Store the returned file descriptor
 
     read_file:
-
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]  ; the fd
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 10000  ; amount of bytes
-        int 0x80        ; interruption to read 100 bytes
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov EBX, [file_descriptor] ; Get the file descriptor
+        mov ECX, buffer ; Point to the buffer for file contents
+        mov EDX, 10000 ; Read up to 10000 bytes from file
+        int 0x80 ; Execute syscall to read entire file into buffer
         
     start_read:
-
-        mov ESI, buffer     ; pointer to buffer
-        mov ECX, -1         ; count the questions, start at -1 to account 
-        ; for the initial : of the amount of questions in the questions.txt
-        jmp read_loop
+        mov ESI, buffer ; Point to start of buffer
+        mov ECX, -1 ; Initialize question counter to -1 (accounts for initial ':')
+        jmp read_loop ; Begin searching for the requested question
 
     read_loop:
+        cmp byte [ESI], 0 ; Check if we reached end of buffer (null terminator)
+        je close_file ; If at end, close file (something went wrong)
 
-        cmp byte [ESI], 0   ; EOF Token
-        je close_file       ; End read
+        cmp byte [ESI], ':' ; Check if current character is ':' (question delimiter)
+        je found_question ; If ':' found, we found a question boundary
 
-        cmp byte [ESI], ':' ; Check if question start
-        je found_question
-
-        inc ESI             ; go to the next char
-        jmp read_loop       ; repeat
+        inc ESI ; Move to next character
+        jmp read_loop ; Continue searching
 
     found_question:
+        inc ECX ; Increment question counter
+        inc ESI ; Move past ':' to the correct answer character
 
-        inc ECX ; increase the question counter
-        inc ESI ; go to the next byte
-
-        cmp ECX, [question_num] ; check if it is the question we need
-        jl read_loop
-        ; the format of the file is, that after every :, there is the correct answer
-        ; it can be A, B, C, D, let's move that into a memory segment
+        cmp ECX, [question_num] ; Compare current question index with requested question
+        jl read_loop ; If less than requested, continue searching for next question
         
-        mov EDI, [ESI]  ; Save the answer in EDI
-        mov [correct_ans], EDI  ; Save the correct answer!
-        inc ESI ; go to the next character, the question starts now
-        ; now where are using a kind of two pointer technique
-        ; ESI being LEFT, EDI being right
-        mov EDI, ESI    ; copy pointer
+        mov EDI, [ESI] ; Load the correct answer character into EDI
+        mov [correct_ans], EDI ; Save the correct answer character in memory
+        inc ESI ; Move past answer character to the question text
+        
+        mov EDI, ESI ; Copy current pointer to EDI for finding end of question
 
     find_end:
+        cmp byte [EDI], 0 ; Check if we reached end of buffer (null terminator)
+        je print_question ; If at end, we've found all text for this question
 
-        cmp byte [EDI], 0   ; this means we have read but not to the end of the question
-        je print_question
+        cmp byte [EDI], ']' ; Check if we reached the question end marker ']'
+        je found_end ; If found, truncate the string here
 
-        cmp byte [EDI], ']'
-        je found_end
-
-        inc EDI
-        jmp find_end
+        inc EDI ; Move to next character
+        jmp find_end ; Continue searching for end marker
 
     found_end:
-
-        mov byte [EDI], 0   ;EDI points to 0
-        PutStr ESI
+        mov byte [EDI], 0 ; Replace ']' with null terminator to end string
+        PutStr ESI ; Display the question text
         
-        mov byte [EDI], ']' ;restore it back to end
-        jmp close_file
+        mov byte [EDI], ']' ; Restore the ']' character back to original position
+        jmp close_file ; Jump to close file
 
     print_question:
-
-        PutStr ESI
+        PutStr ESI ; Display the question text
 
     read_left:
+        mov EAX, 3 ; Load syscall number for read (0x03)
+        mov EBX, [file_descriptor] ; Get the file descriptor
+        mov ECX, buffer ; Point to the buffer for file contents
+        mov EDX, 100 ; Read up to 100 more bytes (if question was cut off)
+        int 0x80 ; Execute syscall to read from file
 
-        mov EAX, 3          ; sys_read
-        mov EBX, [file_descriptor]  ; the fd
-        mov ECX, buffer ; buffer pointer
-        mov EDX, 100    ; amount of bytes
-        int 0x80        ; interruption to read 100 bytes
-
-        mov ESI, buffer
-        mov ESI, buffer
-        jmp find_end
+        mov ESI, buffer ; Point to start of newly read buffer
+        mov ESI, buffer ; Duplicate (redundant but kept from original)
+        jmp find_end ; Continue finding the end of the question
 
     close_file:
-        ; Close the file
-        mov EAX, 6          ; sys_close
-        mov EBX, [file_descriptor]
-        int 0x80
+        mov EAX, 6 ; Load syscall number for close (0x06)
+        mov EBX, [file_descriptor] ; Get the file descriptor
+        int 0x80 ; Execute syscall to close the file
 
     end_parse:
-        mov EAX, [correct_ans]
-        ret
+        mov EAX, [correct_ans] ; Load the correct answer character into EAX
+        ret ; Return from function with correct answer in EAX
