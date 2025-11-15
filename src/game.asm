@@ -46,6 +46,12 @@ play_game:
     mov [amt_players], AX   ; AX must have the amount of players for the call
     call wipe_file  ; wipes the seenAnswer txt
     
+    ; Initialize scores to 0 for this game
+    mov word [scores], 0
+    mov word [scores + 2], 0
+    mov word [scores + 4], 0
+    mov word [scores + 6], 0
+    
     ; Initialize name buffer pointer
     mov EBX, names
     mov EDX, 0 ; EDX is the player counter
@@ -58,15 +64,18 @@ ask_player_name:
     PutStr ask_name
     GetStr EBX, 19
     nwln
+    
     cmp EDX, [amt_players]
     jge turns_start
     add EBX, 20 ; go to the next name
     jmp ask_player_name
 
 turns_start:
+
     mov EBX, 0 ; this is the counter for turns (0-based)
 
 turn_loop:
+
     cmp EBX, [amt_ques]
     jge show_scores
     mov EDX, 0 ; back to player 0
@@ -119,6 +128,7 @@ incorrect:
     jmp play_loop
 
 increase_score:
+
     PutStr correct_msg
     nwln
     
@@ -141,10 +151,12 @@ increase_score:
     jmp play_loop
 
 next_turn:
+
     inc EBX
     jmp turn_loop
 
 show_scores:
+
     nwln
     PutStr end_game
     nwln
@@ -152,12 +164,13 @@ show_scores:
     nwln
 
 loop_scores:
+
     mov EBX, 0 ; player count shown so far
     
 find_next_max:
 
-    mov EAX, -1  ; start with -1 to find any score greater
-    mov EDX, 0   ; index of max score player
+    mov AX, -1   ; AX = -1: marker for "no score found yet" or "already shown"
+    mov EDX, -1  ; EDX = -1: no player found yet
     mov ECX, 0   ; player counter for the loop
     
 get_max_score:
@@ -165,44 +178,61 @@ get_max_score:
     cmp ECX, [amt_players]
     jge show_current_max
     
-    ; Compare current max (AX) with scores[ECX] (SI)
-    ; This is a signed comparison
     mov SI, [scores + ECX * 2]
-    cmp AX, SI
-    jge next_player ; jge is a SIGNED jump (Jump if Greater or Equal)
     
-    ; New max found
-    movsx EAX, SI ; Sign-extend new max into EAX
+    ; Skip scores that are -1 (already shown)
+    cmp SI, -1
+    je skip_to_next_player
+    
+    ; If we haven't found any player yet (EDX == -1), take this one
+    cmp EDX, -1
+    jne compare_with_current_max
+    
+    mov AX, SI
+    mov EDX, ECX
+    jmp skip_to_next_player
+
+compare_with_current_max:
+    ; Compare SI (new score) with AX (current max score)
+    ; Using SIGNED comparison: if SI <= AX, skip it
+    cmp SI, AX
+    jle skip_to_next_player
+
+    ; New max found (SI > AX)
+    mov AX, SI
     mov EDX, ECX  ; Save index of new max player
     
-next_player:
+skip_to_next_player:
 
     inc ECX
     jmp get_max_score
 
 show_current_max:
-    ; Check if we found a valid score (EAX will be -1 if all are shown)
-    cmp EAX, 0
-    jl done
+    ; Check if we found a player (EDX will be -1 if all are shown)
+    cmp EDX, -1
+    je done
     
     ; Show this player's score
     inc EBX
     PutStr player_num
-    PutLInt EBX
+    mov ECX, EBX
+    PutLInt ECX
     PutCh ' '
     
     ; Calculate name address: names + (EDX * 20)
+    ; Use ECX as temporary to avoid losing our values
     push EAX
     push EBX
+    push EDX
 
-    mov EAX, EDX
-    mov EBX, 20
-    mul EBX
-    mov EBX, names
-    add EBX, EAX
+    mov ECX, EDX
+    mov EAX, 20
+    imul ECX, EAX   ; ECX = EDX * 20
+    lea EBX, [names + ECX]  ; EBX = names + offset
 
     PutStr EBX
 
+    pop EDX
     pop EBX
     pop EAX
     nwln
