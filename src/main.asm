@@ -33,73 +33,73 @@ extern show_quest
 
 .STARTUP
 
-    call show_intro ; Display the introduction screen to the user
+    call show_intro ; show the intro
 
 show_menu:
 
-    nwln ; Print a blank line for readability
-    PutStr option_play ; Display option 1: Play Game
+    nwln ; blank line
+    PutStr option_play ; 1 - play game
     nwln
-    PutStr option_change ; Display option 2: Add Question
+    PutStr option_change ; 2 - add question
     nwln
-    PutStr option_questions ; Display option 3: View Questions
+    PutStr option_questions ; 3 - view questions
     nwln
-    PutStr option_exit ; Display option 4: Exit
+    PutStr option_exit ; 4 - exit
     nwln
-    jmp ask_option ; Jump to get user input
+    jmp ask_option ; get choice
 
 not_valid:
 
-    PutStr option_not_valid ; Display error message for invalid option
+    PutStr option_not_valid ; invalid option
     nwln
 
 ask_option:
 
-    PutStr option_ask ; Prompt user to enter a menu option
-    GetCh DL ; Read a single character from user into DL
-    cmp DL, '1' ; Check if user entered '1' (Play Game option)
+    PutStr option_ask ; pick an option
+    GetCh DL ; get char
+    cmp DL, '1' ; 1?
     je start_game
-    cmp DL, '2' ; Check if user entered '2' (Add Question option)
+    cmp DL, '2' ; 2?
     je add_questions
-    cmp DL, '3' ; Check if user entered '3' (View Questions option)
+    cmp DL, '3' ; 3?
     je see_questions
-    cmp DL, '4' ; Check if user entered '4' (Exit option)
+    cmp DL, '4' ; 4?
     je done
-    jmp not_valid ; If invalid, display error and loop back
+    jmp not_valid ; try again
 
 start_game:
 
-    PutStr ask_players ; Prompt for number of players
-    jmp ask_player_count ; Jump to validate and retrieve player count
+    PutStr ask_players ; how many players?
+    jmp ask_player_count ; get count
 
 not_valid_player_count:
 
-    PutStr  option_not_valid ; Display error message for invalid player count
+    PutStr  option_not_valid ; invalid count
     nwln
 
 ask_player_count:
 
-    GetInt AX ; Read integer from user (number of players) into AX
+    GetInt AX ; get number
 
-    cmp AX, 1 ; Check if player count is less than 1
+    cmp AX, 1 ; less than 1?
     jl not_valid
-    cmp AX, 4 ; Check if player count is greater than 4
+    cmp AX, 4 ; more than 4?
     jg not_valid
 
 valid_player_count:
 
-    call play_game ; Call game function with player count in AX
-    jmp show_menu ; Return to main menu after game ends
+    call play_game ; start the game
+    jmp show_menu ; back to menu
 
 add_questions:
 
-    call add_question ; Call add_question function to allow user to add new questions
-    jmp show_menu ; Return to main menu after adding question
+    call add_question ; add a question
+    jmp show_menu ; back to menu
 
 see_questions:
-    call show_quest ; Call show_quest function to display all questions
-    jmp show_menu ; Return to main menu
+    call show_quest ; show questions
+    jmp show_menu ; back to menu
 
 done:
-    nwln ; Print blank line before exiting
-    .EXIT ; Exit the program
+    nwln ; pretty space
+    .EXIT ; end of the program

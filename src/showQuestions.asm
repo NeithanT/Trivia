@@ -20,64 +20,69 @@
 
     global show_quest
 
-    show_quest:
-        mov EAX, 5 ; Get ready to open the file
-        mov EBX, file_name ; Point to the questions file
-        mov ECX, 0 ; Open it just for reading
-        mov EDX, 0 ; No fancy stuff needed
-        int 0x80 ; Open the file
+show_quest:
 
-        mov [file_descriptor], AL ; Save the file handle
+    mov EAX, 5 ; open file
+    mov EBX, file_name ; questions.txt
+    mov ECX, 0 ; read-only
+    mov EDX, 0 ; no flags
+    int 0x80 ; open
 
-        mov EAX, 3 ; Get ready to read
-        mov EBX, [file_descriptor] ; Use our file handle
-        mov ECX, buffer ; Read into our buffer
-        mov EDX, 10000 ; Read a bunch of bytes
-        int 0x80 ; Read the whole file
-        
-        mov [buffer + EAX], BYTE 0 ; Mark the end of what we read
+    mov [file_descriptor], AL ; save fd
 
-        mov ESI, buffer ; Start from the beginning
-        mov EDX, -1 ; Use EDX to remember if we skipped the header
+    mov EAX, 3 ; read
+    mov EBX, [file_descriptor] ; fd
+    mov ECX, buffer ; buffer
+    mov EDX, 10000 ; read a lot
+    int 0x80 ; read
+    
+    mov [buffer + EAX], BYTE 0 ; null terminate
 
-    find_question:
-        cmp BYTE [ESI], 0 ; Check if we're at the end
-        je done ; If we're done, wrap it up
+    mov ESI, buffer ; start
+    mov EDX, -1 ; header flag
 
-        cmp BYTE [ESI], ':' ; Look for ':' markers
-        je found_delimiter ; Found a ':' - that's a marker
-        inc ESI ; Keep going
-        jmp find_question ; Keep looking
+find_question:
 
-    found_delimiter:
-        cmp EDX, -1 ; check if we skipped question
-        jne find_end ; If we already did the first one, show this question
-        mov EDX, 0 ; Remember we skipped the header
-        inc ESI ; Skip the header marker
-        jmp find_question ; Keep looking for real questions
+    cmp BYTE [ESI], 0 ; end?
+    je done ; yep
 
-    find_end:
-        inc ESI ; Skip the ':' and get to the answer
-        inc ESI ; Skip the answer letter
-        inc ESI ; Skip the newline, now at the question
-        mov EDI, ESI ; Set up to find where the question ends
-        jmp find_end_loop ; Start looking for the end
+    cmp BYTE [ESI], ':' ; ':' ?
+    je found_delimiter ; yep
+    inc ESI ; next
+    jmp find_question ; continue
 
-    find_end_loop:
-        inc EDI ; Keep going
-        cmp BYTE [EDI], ']' ; Look for the end marker ']'
-        je print ; Found it, stop here
-        cmp BYTE [EDI], 0 ; Check if we're at the end
-        je done ; If we're done, wrap it up
-        jmp find_end_loop ; Keep looking for the end
+found_delimiter:
 
-    print:
-        mov [EDI], BYTE 0 ; Mark the end of the text
-        PutStr ESI ; Show the question
-        mov [EDI], BYTE ']' ; Put the ']' back
-        mov ESI, EDI ; Jump to where the ']' was
-        inc ESI ; Skip past the ']'
-        jmp find_question ; Keep going to the next question
+    cmp EDX, -1 ; skipped header?
+    jne find_end ; already did
+    mov EDX, 0 ; mark skipped
+    inc ESI ; skip
+    jmp find_question ; continue
 
-    done:
-        ret ; We're done here
+find_end:
+
+    inc ESI ; skip ':'
+    inc ESI ; skip answer
+    inc ESI ; skip newline
+    mov EDI, ESI ; start of question
+    jmp find_end_loop ; find end
+
+find_end_loop:
+
+    inc EDI ; next
+    cmp BYTE [EDI], ']' ; end marker?
+    je print ; yep
+    cmp BYTE [EDI], 0 ; end?
+    je done ; yep
+    jmp find_end_loop ; continue
+
+print:
+    mov [EDI], BYTE 0 ; null
+    PutStr ESI ; show question
+    mov [EDI], BYTE ']' ; restore
+    mov ESI, EDI ; to ']'
+    inc ESI ; past it
+    jmp find_question ; next
+
+done:
+    ret

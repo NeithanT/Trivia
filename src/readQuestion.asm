@@ -23,96 +23,109 @@
 
     global read_question
 
-    read_question:
-        mov [question_num], EAX ; Remember which question we want
+read_question:
 
-    open_file:
-        mov EAX, 5 ; Get ready to open the file
-        mov EBX, file_name ; Point to the questions file
-        mov ECX, 0 ; Open it just for reading
-        mov EDX, 0 ; No fancy stuff needed
-        int 0x80 ; Open the file
+    mov [question_num], EAX ; remember which question
 
-        mov [file_descriptor], EAX ; Save the file handle
+open_file:
 
-    read_file:
-        mov EAX, 3 ; Get ready to read
-        mov EBX, [file_descriptor] ; Use our file handle
-        mov ECX, buffer ; Read into our buffer
-        mov EDX, 10000 ; Read a bunch of bytes
-        int 0x80 ; Read the whole file
-        
-    start_read:
-        mov ESI, buffer ; Start from the beginning
-        mov ECX, 0 ; Start counting questions at 0
-        mov EDX, -1 ; Use EDX to remember if we skipped the header
-        jmp read_loop ; Start looking for our question
+    mov EAX, 5 ; open the file
+    mov EBX, file_name ; questions.txt
+    mov ECX, 0 ; read-only
+    mov EDX, 0 ; no flags
+    int 0x80 ; open it
 
-    read_loop:
-        cmp byte [ESI], 0 ; Check if we're at the end
-        je close_file ; If we're done, close up
+    mov [file_descriptor], EAX ; save fd
 
-        cmp byte [ESI], ':' ; Look for ':' markers
-        je found_question ; Found a ':' - that's a marker
+read_file:
 
-        inc ESI ; Keep going
-        jmp read_loop ; Keep looking
+    mov EAX, 3 ; read
+    mov EBX, [file_descriptor] ; fd
+    mov ECX, buffer ; into buffer
+    mov EDX, 10000 ; read a lot
+    int 0x80 ; read file
+    
+start_read:
 
-    found_question:
-        cmp EDX, -1 ; Did we skip the header yet?
-        jne skip_first ; If we already did the first one
-        mov EDX, 0 ; Remember we skipped the header
-        inc ESI ; Skip the header marker
-        jmp read_loop ; Keep looking for real questions
+    mov ESI, buffer ; start at buffer
+    mov ECX, 0 ; question count 0
+    mov EDX, -1 ; header skip flag
+    jmp read_loop ; start loop
 
-    skip_first:
-        inc ECX ; Count this as a real question (1-based indexing)
-        inc ESI ; Skip the ':' and get to the answer letter
+read_loop:
 
-        cmp ECX, [question_num] ; Check if this is the question we want
-        jne read_loop ; If not, keep looking for the right one (exact match required)
-        
-        movzx EDI, byte [ESI] ; Grab the answer letter
-        mov [correct_ans], DI ; Save the answer for later
-        inc ESI ; Move on to the question text
-        
-        mov EDI, ESI ; Set up to find where the question ends
+    cmp byte [ESI], 0 ; end of file?
+    je close_file ; yep, done
 
-    find_end:
-        cmp byte [EDI], 0 ; Check if we're at the end
-        je print_question ; If we're done, we have the question
+    cmp byte [ESI], ':' ; found ':' ?
+    je found_question ; yep
 
-        cmp byte [EDI], ']' ; Look for the end marker ']'
-        je found_end ; Found it, stop here
+    inc ESI ; next char
+    jmp read_loop ; continue
 
-        inc EDI ; Keep going
-        jmp find_end ; Keep looking for the end
+found_question:
 
-    found_end:
-        mov byte [EDI], 0 ; Mark the end of the text
-        PutStr ESI ; Show the question
-        
-        mov byte [EDI], ']' ; Put the ']' back
-        jmp close_file ; Close up shop
+    cmp EDX, -1 ; skipped header?
+    jne skip_first ; already did
+    mov EDX, 0 ; mark skipped
+    inc ESI ; skip header
+    jmp read_loop ; continue
 
-    print_question:
-        PutStr ESI ; Show the question
+skip_first:
 
-    read_left:
-        mov EAX, 3 ; Get ready to read more
-        mov EBX, [file_descriptor] ; Use our file handle
-        mov ECX, buffer ; Read into our buffer
-        mov EDX, 100 ; Read a bit more if needed
-        int 0x80 ; Read more
+    inc ECX ; count question
+    inc ESI ; to answer letter
 
-        mov ESI, buffer ; Start from the new stuff
-        jmp find_end ; Keep looking for the end
+    cmp ECX, [question_num] ; is this the one?
+    jne read_loop ; nope
+    
+    movzx EDI, byte [ESI] ; get answer
+    mov [correct_ans], DI ; save it
+    inc ESI ; to question text
+    
+    mov EDI, ESI ; find end
 
-    close_file:
-        mov EAX, 6 ; Get ready to close
-        mov EBX, [file_descriptor] ; Use our file handle
-        int 0x80 ; Close the file
+find_end:
 
-    end_parse:
-        mov EAX, [correct_ans] ; Get the answer ready
-        ret ; Send back the answer
+    cmp byte [EDI], 0 ; end?
+    je print_question ; yep
+
+    cmp byte [EDI], ']' ; end marker?
+    je found_end ; yep
+
+    inc EDI ; next
+    jmp find_end ; continue
+
+found_end:
+
+    mov byte [EDI], 0 ; null terminate
+    PutStr ESI ; print question
+    
+    mov byte [EDI], ']' ; restore
+    jmp close_file ; done
+
+print_question:
+
+    PutStr ESI ; print it
+
+read_left:
+
+    mov EAX, 3 ; read more
+    mov EBX, [file_descriptor] ; fd
+    mov ECX, buffer ; buffer
+    mov EDX, 100 ; more bytes
+    int 0x80 ; read
+
+    mov ESI, buffer ; new start
+    jmp find_end ; find end
+
+close_file:
+
+    mov EAX, 6 ; close
+    mov EBX, [file_descriptor] ; fd
+    int 0x80 ; close
+
+end_parse:
+
+    mov EAX, [correct_ans] ; return answer
+    ret

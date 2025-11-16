@@ -9,11 +9,11 @@
 
 %include "io.mac"
 
-
 .DATA
 
     file_name   db "src/saves/intro.txt", 0
     file_size   dd 1200
+
 .UDATA
 
     buffer  resb 1200
@@ -22,25 +22,25 @@
 
     global show_intro
 
-    show_intro:
-        mov EAX, 5 ; Load syscall number for open (0x05)
-        mov EBX, file_name ; Point to the filename string for intro.txt
-        mov ECX, 0 ; Set flags to 0 for read-only access
-        mov EDX, 0 ; No special file mode bits needed
-        int 0x80 ; Execute syscall to open the file
-        
-        mov EBX, EAX ; Move the returned file descriptor from EAX to EBX
-        mov EAX, 3 ; Load syscall number for read (0x03)
-        mov ECX, buffer ; Point to the buffer where file contents will be read
-        mov EDX, [file_size] ; Load the maximum bytes to read (1200 bytes)
-        int 0x80 ; Execute syscall to read entire intro file into buffer
+show_intro:
 
-        PutStr buffer ; Display the intro text from buffer to user
-
-    done:
-
-        mov EAX, 6  ; close file !
-        int 0x80
-
-        ret
+    mov EAX, 5 ; open file
+    mov EBX, file_name ; intro.txt
+    mov ECX, 0 ; read-only
+    mov EDX, 0 ; no flags
+    int 0x80 ; open
     
+    mov EBX, EAX ; fd to EBX
+    mov EAX, 3 ; read
+    mov ECX, buffer ; buffer
+    mov EDX, [file_size] ; 1200 bytes
+    int 0x80 ; read
+
+    PutStr buffer ; show intro
+
+done:
+
+    mov EAX, 6  ; close
+    int 0x80
+
+    ret

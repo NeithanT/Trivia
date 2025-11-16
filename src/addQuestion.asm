@@ -66,10 +66,12 @@ add_question:
     jmp put_options ; show the options
 
 invalid:
+
     PutStr invalid_opt ; oops, invalid choice
     nwln
 
 put_options: 
+
     PutStr multi ; option 1: multiple choice
     nwln
     PutStr true_false ; option 2: true or false
@@ -86,14 +88,17 @@ put_options:
     jmp invalid ; nope, try again
 
 ask_quest:
+
     PutStr ask_question ; what's the question?
     GetStr question, 100 ; read it
     ret
     
 count_chars:
+
     mov EAX, 0 ; start counting
 
 count_chars_loop:
+
     cmp BYTE [ECX], 0 ; end of string?
     je count_done ; yep
     inc ECX ; next char
@@ -101,14 +106,17 @@ count_chars_loop:
     jmp count_chars_loop ; keep going
 
 count_done:
+
     ret
 
 multiple_option:
+
     call ask_quest ; get the question
     mov EBX, answer ; buffer for answers
     mov CL, 'A' ; start with A
 
 multiple_loop:
+
     cmp CL, 'E' ; done all 4?
     je ask_correct_label ; yep, ask correct
     PutStr ask_answer ; option #
@@ -121,10 +129,12 @@ multiple_loop:
     jmp multiple_loop ; next one
 
 invalid_correct:
+
     PutStr invalid_opt ; invalid
     nwln
 
 ask_correct_label:
+
     PutStr ask_correct ; which is correct?
     GetCh BL ; get the letter
     cmp BL, 'A' ; too low?
@@ -208,6 +218,7 @@ write_multiple_loop:
     jmp write_multiple_loop ; next
     
 true_false_label:
+
     call ask_quest ; get the question
     PutStr ask_true_false ; true or false?
     nwln
@@ -218,10 +229,13 @@ true_false_label:
     jmp ask_ans_true_false ; get correct
 
 not_valid_tf:
+    ; tf refers to true false xd
+
     PutStr invalid ; invalid
     nwln
 
 ask_ans_true_false:
+
     PutStr ask_correct ; correct one?
     GetCh AL ; get A or B
     cmp AL, 'A' ; A?
@@ -232,6 +246,7 @@ ask_ans_true_false:
     jmp not_valid_tf ; nope
 
 save_true_false:
+
     mov [correct_ans], AL ; save
 
     call write_newline ; newline
@@ -287,6 +302,7 @@ save_true_false:
     call write_newline ; newline
 
 write_done:
+
     mov EAX, 4 ; write
     mov EBX, [file_descriptor]
     mov ECX, close_question ; ']'
@@ -296,6 +312,7 @@ write_done:
     jmp close_file ; close up
 
 write_newline:
+
     mov EAX, 4 ; write
     mov EBX, [file_descriptor]
     mov ECX, newline ; newline char
@@ -304,11 +321,13 @@ write_newline:
     ret
 
 close_file:
+
     mov EAX, 6 ; close
     mov EBX, [file_descriptor]
     int 0x80 ; close
 
 done:
+
     call change_count ; update count
 
     nwln
